@@ -10,7 +10,10 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="login-container">
-      <h2>Login to your account</h2>
+      <div class="login-header">
+        <h1>Welcome Back</h1>
+        <p>Please sign in to your account</p>
+      </div>
       
       <div class="alert alert-error" *ngIf="error">
         {{ error }}
@@ -18,26 +21,22 @@ import { AuthService } from '../../../core/services/auth.service';
       
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="username" class="form-label">Username</label>
           <input
-            type="email"
-            id="email"
-            formControlName="email"
+            type="text"
+            id="username"
+            formControlName="username"
             class="form-control"
-            [class.is-invalid]="submitted && f['email'].errors"
-            placeholder="Email address"
+            [class.is-invalid]="submitted && f['username'].errors"
+            placeholder="Enter your username"
           />
-          <div class="invalid-feedback" *ngIf="submitted && f['email'].errors">
-            <div *ngIf="f.email.errors.required">Email is required</div>
-            <div *ngIf="f.email.errors.email">Email must be valid</div>
+          <div class="invalid-feedback" *ngIf="submitted && f['username'].errors">
+            <div *ngIf="f.username.errors.required">Username is required</div>
           </div>
         </div>
         
         <div class="form-group">
-          <div class="d-flex justify-content-between">
-            <label for="password" class="form-label">Password</label>
-            <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
-          </div>
+          <label for="password" class="form-label">Password</label>
           <input
             type="password"
             id="password"
@@ -53,7 +52,7 @@ import { AuthService } from '../../../core/services/auth.service';
         
         <div class="form-group">
           <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
-            {{ loading ? 'Logging in...' : 'Login' }}
+            {{ loading ? 'Signing in...' : 'Sign In' }}
           </button>
         </div>
       </form>
@@ -61,9 +60,9 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="login-help">
         <p>Use the following demo accounts:</p>
         <div class="demo-accounts">
-          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('admin@example.com')">Admin</button>
-          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('hr@example.com')">HR</button>
-          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('employee@example.com')">Employee</button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('admin')">Admin</button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('hr')">HR</button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('employee')">Employee</button>
         </div>
       </div>
     </div>
@@ -72,15 +71,46 @@ import { AuthService } from '../../../core/services/auth.service';
     .login-container {
       max-width: 400px;
       margin: 0 auto;
+      padding: var(--space-4);
     }
     
-    h2 {
+    .login-header {
       margin-bottom: var(--space-4);
       text-align: center;
     }
     
+    .login-header h1 {
+      color: var(--neutral-800);
+      margin-bottom: var(--space-2);
+      font-size: var(--font-size-2xl);
+      font-weight: 600;
+    }
+    
+    .login-header p {
+      color: var(--neutral-600);
+      margin-bottom: 0;
+    }
+    
     .form-group {
       margin-bottom: var(--space-4);
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: var(--neutral-700);
+    }
+    
+    .form-control {
+      padding: var(--space-3);
+      font-size: var(--font-size-md);
+      border: 2px solid var(--neutral-300);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
     }
     
     .is-invalid {
@@ -94,8 +124,28 @@ import { AuthService } from '../../../core/services/auth.service';
       margin-top: var(--space-1);
     }
     
-    .forgot-link {
-      font-size: var(--font-size-sm);
+    .btn {
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--font-size-md);
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     
     .login-help {
@@ -115,15 +165,32 @@ import { AuthService } from '../../../core/services/auth.service';
       display: flex;
       justify-content: center;
       gap: var(--space-2);
+      flex-wrap: wrap;
     }
     
     .btn-sm {
       padding: var(--space-1) var(--space-2);
       font-size: var(--font-size-xs);
+      border-radius: var(--radius-sm);
     }
     
     .w-100 {
       width: 100%;
+    }
+    
+    @media (max-width: 480px) {
+      .login-container {
+        padding: var(--space-3);
+      }
+      
+      .demo-accounts {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn-sm {
+        width: 120px;
+      }
     }
   `]
 })
@@ -140,7 +207,7 @@ export class LoginComponent {
     private authService: AuthService
   ) {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', Validators.required],
       password: ['', Validators.required]
     });
   }
@@ -157,7 +224,13 @@ export class LoginComponent {
     this.loading = true;
     this.error = '';
     
-    this.authService.login(this.loginForm.value).subscribe({
+    // Convert username to email format for the existing auth service
+    const credentials = {
+      email: this.getEmailFromUsername(this.loginForm.value.username),
+      password: this.loginForm.value.password
+    };
+    
+    this.authService.login(credentials).subscribe({
       next: () => {
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
         this.router.navigateByUrl(returnUrl);
@@ -169,10 +242,21 @@ export class LoginComponent {
     });
   }
   
-  fillDemo(email: string) {
+  fillDemo(username: string) {
     this.loginForm.patchValue({
-      email: email,
+      username: username,
       password: 'password'
     });
+  }
+  
+  private getEmailFromUsername(username: string): string {
+    // Map usernames to existing demo emails
+    const usernameMap: { [key: string]: string } = {
+      'admin': 'admin@example.com',
+      'hr': 'hr@example.com',
+      'employee': 'employee@example.com'
+    };
+    
+    return usernameMap[username.toLowerCase()] || `${username}@example.com`;
   }
 }
