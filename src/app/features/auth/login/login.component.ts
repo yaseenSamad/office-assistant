@@ -57,12 +57,14 @@ import { AuthService } from '../../../core/services/auth.service';
         </div>
       </form>
       
-      <div class="login-help">
-        <p>Use the following demo accounts:</p>
-        <div class="demo-accounts">
-          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('admin')">Admin</button>
-          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('hr')">HR</button>
-          <button type="button" class="btn btn-outline btn-sm" (click)="fillDemo('employee')">Employee</button>
+      <div class="login-links">
+        <div class="forgot-password">
+          <a routerLink="/auth/forgot-password">Forgot your password?</a>
+        </div>
+        
+        <div class="register-section">
+          <p>Don't have an account?</p>
+          <a routerLink="/auth/register" class="btn btn-outline">Register</a>
         </div>
       </div>
     </div>
@@ -155,23 +157,57 @@ import { AuthService } from '../../../core/services/auth.service';
       text-align: center;
     }
     
-    .login-help p {
+    .login-links {
+      margin-top: var(--space-4);
+      text-align: center;
+    }
+    
+    .forgot-password {
+      margin-bottom: var(--space-4);
+    }
+    
+    .forgot-password a {
+      color: var(--primary);
+      font-size: var(--font-size-sm);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    
+    .forgot-password a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    .register-section {
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--neutral-200);
+    }
+    
+    .register-section p {
       font-size: var(--font-size-sm);
       color: var(--neutral-600);
       margin-bottom: var(--space-2);
     }
     
-    .demo-accounts {
-      display: flex;
-      justify-content: center;
-      gap: var(--space-2);
-      flex-wrap: wrap;
+    .register-section .btn {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      display: inline-block;
+      transition: all var(--transition-fast);
     }
     
-    .btn-sm {
-      padding: var(--space-1) var(--space-2);
-      font-size: var(--font-size-xs);
-      border-radius: var(--radius-sm);
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: translateY(-1px);
     }
     
     .w-100 {
@@ -181,15 +217,6 @@ import { AuthService } from '../../../core/services/auth.service';
     @media (max-width: 480px) {
       .login-container {
         padding: var(--space-3);
-      }
-      
-      .demo-accounts {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .btn-sm {
-        width: 120px;
       }
     }
   `]
@@ -239,13 +266,6 @@ export class LoginComponent {
         this.error = error.message || 'Login failed. Please check your credentials.';
         this.loading = false;
       }
-    });
-  }
-  
-  fillDemo(username: string) {
-    this.loginForm.patchValue({
-      username: username,
-      password: 'password'
     });
   }
   
