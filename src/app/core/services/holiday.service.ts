@@ -9,6 +9,7 @@ const MOCK_HOLIDAYS: Holiday[] = [
     title: 'New Year\'s Day',
     description: 'Start of the new year',
     date: new Date('2025-01-01'),
+    isFloater: false,
     createdBy: 'admin',
     createdAt: new Date('2024-12-01')
   },
@@ -17,6 +18,7 @@ const MOCK_HOLIDAYS: Holiday[] = [
     title: 'Independence Day',
     description: 'National holiday celebrating independence',
     date: new Date('2025-07-04'),
+    isFloater: false,
     createdBy: 'admin',
     createdAt: new Date('2024-12-01')
   },
@@ -25,6 +27,16 @@ const MOCK_HOLIDAYS: Holiday[] = [
     title: 'Christmas Day',
     description: 'Christmas celebration',
     date: new Date('2025-12-25'),
+    isFloater: false,
+    createdBy: 'admin',
+    createdAt: new Date('2024-12-01')
+  },
+  {
+    id: '4',
+    title: 'Personal Day',
+    description: 'Flexible personal holiday',
+    date: new Date('2025-06-15'),
+    isFloater: true,
     createdBy: 'admin',
     createdAt: new Date('2024-12-01')
   }
