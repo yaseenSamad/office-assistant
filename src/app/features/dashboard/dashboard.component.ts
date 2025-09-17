@@ -64,7 +64,7 @@ interface LeaveBalance {
         <div class="holiday-content">
           <div class="holiday-icon">🎉</div>
           <div class="holiday-details">
-            <h3>{{ nextHoliday.name }}</h3>
+            <h3>{{ nextHoliday.title }}</h3>
             <p>{{ nextHoliday.daysLeft }} days to go</p>
             <span class="holiday-badge" *ngIf="nextHoliday.isFloater">Floater</span>
           </div>
@@ -283,7 +283,7 @@ interface LeaveBalance {
                   <span class="date-month">{{ holiday.date | date:'MMM' }}</span>
                 </div>
                 <div class="holiday-info">
-                  <h4>{{ holiday.name }}</h4>
+                  <h4>{{ holiday.title }}</h4>
                   <p>{{ holiday.daysLeft }} days left</p>
                   <span class="holiday-badge" *ngIf="holiday.isFloater">Floater</span>
                 </div>
@@ -863,6 +863,7 @@ interface LeaveBalance {
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
+  private holidayService = inject(HolidayService);
   
   user: User | null = null;
   currentTime: string = '';
@@ -871,14 +872,9 @@ export class DashboardComponent implements OnInit {
   showBlogForm: boolean = false;
   newBlogContent: string = '';
 
-  // Mock data
-  nextHoliday: Holiday = {
-    id: '1',
-    name: 'Independence Day',
-    date: new Date('2025-07-04'),
-    isFloater: false,
-    daysLeft: 45
-  };
+  // Holiday data
+  nextHoliday: Holiday | null = null;
+  upcomingHolidays: Holiday[] = [];
 
   blogPosts: BlogPost[] = [
     {
@@ -942,6 +938,29 @@ export class DashboardComponent implements OnInit {
     this.user = this.authService.getCurrentUser();
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
+  }
+
+  loadHolidays(): void {
+    this.holidayService.getUpcomingHolidays(5).subscribe({
+      next: (holidays) => {
+        this.upcomingHolidays = holidays.map(h => ({
+          ...h,
+          name: h.title,
+          daysLeft: this.calculateDaysUntil(h.date)
+        }));
+        this.nextHoliday = this.upcomingHolidays.length > 0 ? this.upcomingHolidays[0] : null;
+      },
+      error: (error) => {
+        console.error('Error loading holidays:', error);
+      }
+    });
+  }
+
+  calculateDaysUntil(date: Date): number {
+    const today = new Date();
+    const targetDate = new Date(date);
+    const diffTime = targetDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
   updateTime(): void {
