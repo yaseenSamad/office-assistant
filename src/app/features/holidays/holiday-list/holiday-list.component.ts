@@ -9,4 +9,10 @@ import { Holiday } from '../../../core/models/holiday.model';
 @Component({
   selector: 'app-holiday-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
+  template: ``
+})
+
+export class HolidayListComponent{
+
+}
