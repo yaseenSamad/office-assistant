@@ -1009,6 +1009,18 @@ export class DashboardComponent implements OnInit {
     post.likes++;
   }
 
+  getDaysUntil(holiday: Holiday): string {
+    const today = new Date();
+    const holidayDate = new Date(holiday.date);
+    const diffTime = holidayDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays > 0) return `${diffDays} days to go`;
+    return 'Past';
+  }
+
   getInitials(name: string): string {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
