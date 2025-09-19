@@ -51,6 +51,10 @@ export const APP_ROUTES: Routes = [
         path: 'teams',
         loadChildren: () => import('./features/teams/teams.routes').then(m => m.TEAMS_ROUTES)
       },
+      {
+        path: 'employees',
+        loadChildren: () => import('./features/employees/employees.routes').then(m => m.EMPLOYEES_ROUTES)
+      },
       // {
       //   path: 'profile',
       //   loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)

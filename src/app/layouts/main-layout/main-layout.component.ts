@@ -107,6 +107,13 @@ import { User, UserRole } from '../../core/models/user.model';
                   Teams
                 </a>
               </li>
+              
+              <li>
+                <a routerLink="/employees" routerLinkActive="active">
+                  <span class="material-icons">people</span>
+                  Employees
+                </a>
+              </li>
             </ul>
           </nav>
         </aside>

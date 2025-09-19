@@ -169,4 +169,9 @@ export class AuthService {
   private setUserData(user: User): void {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
+
+  // Method to get all users for team management
+  getAllUsers(): User[] {
+    return MOCK_USERS.filter(u => u.isActive);
+  }
 }
