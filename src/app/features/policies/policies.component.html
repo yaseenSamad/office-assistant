@@ -1,0 +1,36 @@
+<div class="container card fade-in">
+  <h2 class="mb-4">Company Policies</h2>
+
+  <button *ngIf="canEdit()" class="btn btn-primary mb-4">
+    + Add Policy
+  </button>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead class="bg-neutral-200">
+        <tr>
+          <th class="p-3">Title</th>
+          <th class="p-3">Description</th>
+          <th class="p-3">Updated At</th>
+          <th class="p-3">Updated By</th>
+          <th *ngIf="canEdit()" class="p-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let policy of policies" class="border-b">
+          <td class="p-3">
+            <a [href]="policy.documentUrl" target="_blank" class="text-primary underline">
+              {{ policy.title }}
+            </a>
+          </td>
+          <td class="p-3">{{ policy.description }}</td>
+          <td class="p-3">{{ formatDate(policy.updatedAt) }}</td>
+          <td class="p-3">{{ policy.updatedBy }}</td>
+          <td *ngIf="canEdit()" class="p-3">
+            <button class="btn btn-accent btn-sm">✏️ Edit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

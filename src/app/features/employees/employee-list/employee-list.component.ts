@@ -9,7 +9,7 @@ import { User, UserRole } from '../../../core/models/user.model';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="employees-container">
       <!-- Header Section -->
@@ -388,7 +388,7 @@ export class EmployeeListComponent implements OnInit {
   searchTerm = '';
   selectedDepartment = '';
   selectedRole = '';
-  departments: string[] = [];
+  departments: any[] = [];
 
   ngOnInit(): void {
     this.loadEmployees();

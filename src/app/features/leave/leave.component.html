@@ -1,0 +1,108 @@
+<div class="container card">
+  <!-- Header -->
+  <div style="margin: 10px;" class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Leave Management</h2>
+    <a [href]="policyLink" target="_blank" class="btn btn-outline">View Leave Policy</a>
+  </div>
+
+
+
+  <!-- Apply Leave Form -->
+  <div class="card mb-4">
+    <h3>Apply Leave</h3>
+    <form>
+      <div class="row gap-3">
+        <div class="col-md-3">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Duration</label>
+          <select class="form-control">
+            <option value="1">Full Day</option>
+            <option value="0.5">Half Day</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Leave Type</label>
+          <select class="form-control">
+            <option *ngFor="let balance of leaveBalances" [value]="balance.leaveType">
+              {{ balance.leaveType }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group mt-3">
+        <label class="form-label">Reason</label>
+        <textarea class="form-control" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary mt-2">Apply Leave</button>
+    </form>
+  </div>
+
+<div class="table-responsive card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date(s)</th>
+        <th>Leave Type</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Requested By</th>
+        <th>Date Requested</th>
+        <th>Approved By</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let leave of leaveRequests">
+        <td>{{ formatDate(leave.startDate) }} - {{ formatDate(leave.endDate) }} ({{ leave.durationDays }} Day)</td>
+        <td>{{ leave.leaveType }}</td>
+        <td>{{ leave.reason }}</td>
+        <td>
+          <span class="badge"
+            [ngClass]="{
+              'badge-warning': leave.status === 'Pending',
+              'badge-success': leave.status === 'Approved',
+              'badge-error': leave.status === 'Rejected'
+            }">
+            {{ leave.status }}
+          </span>
+        </td>
+        <td>{{ leave.requestedBy }}</td>
+        <td>{{ formatDate(leave.requestedAt) }}</td>
+        <td>{{ leave.approvedBy || '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+    <!-- Leave Balances -->
+  <div class="row" style="gap: 10px;align-items: center;justify-content: space-between;">
+    <div class="" *ngFor="let balance of leaveBalances">
+      <div style="gap: 5px;" class="card d-flex flex-column align-items-center">
+        <h4>{{ balance.leaveType }}</h4>
+              <apx-chart
+        [series]="[balance.used, balance.remaining]"
+        [chart]="{ type: 'pie' }"
+        [labels]="['Used', 'Remaining']"
+        [colors]="['#1976D2', '#4CAF50']"
+        [responsive]="[
+          {
+            breakpoint: 480,
+            options: {
+              chart: { width: 200 },
+              legend: { position: 'bottom' }
+            }
+          }
+        ]"
+      ></apx-chart>
+        <p class="mt-2">{{ balance.remaining }} of {{ balance.totalAllowed }} left</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+/* Container */
+.container {
+  padding: var(--space-4);
+}
+
+/* Title */
+h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--neutral-900);
+  margin-bottom: var(--space-4);
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: var(--neutral-200);
+}
+
+.table th, .table td {
+  text-align: left;
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--neutral-300);
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--neutral-700);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tr:hover {
+  background-color: var(--neutral-100);
+  transition: background-color var(--transition-fast);
+}
+
+/* Clickable Title Link */
+.table a {
+  color: var(--primary);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.table a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* Action Buttons */
+.btn-sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.btn-accent:hover {
+  background-color: var(--accent-dark);
+}
+
+/* Add Policy Button */
+.btn-primary {
+  margin-bottom: var(--space-3);
+}
+
+/* Responsive Table */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Fade-in effect on load */
+.container.card {
+  animation: fadeIn var(--transition-normal);
+}

@@ -1,0 +1,120 @@
+.attendance-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Clock card --- */
+.clock-section {
+  background: white;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+}
+
+.clock-display {
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.current-time {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: var(--space-3);
+}
+
+.clock-status {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+}
+
+.clock-status.clocked-in {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--success);
+}
+
+.clock-status.clocked-out {
+  background: rgba(158, 158, 158, 0.1);
+  color: var(--neutral-600);
+}
+
+.clock-actions {
+  text-align: center;
+}
+
+.clock-btn {
+  width: 100%;
+  padding: var(--space-3);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+font-size: var(--font-size-lg);
+}
+
+.work-hours {
+  font-size: var(--font-size-sm);
+  color: var(--neutral-600);
+}
+
+/* --- Filter card --- */
+.filter-section {
+  background: white;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-section h3 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-3);
+  color: var(--primary-dark);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-3);
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: var(--space-1);
+}
+
+.form-control {
+  padding: var(--space-2);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+/* --- Attendance table --- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center; /* center align td and th */
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--neutral-300);
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.table th {
+  background-color: var(--neutral-200);
+  font-weight: 600;
+}
+
+.bg-white { background-color: white; }
+.bg-neutral-100 { background-color: var(--neutral-100); }
+.bg-primary-light { background-color: var(--primary-light); color: white; }
+
+.table-responsive {
+  overflow-x: auto;
+}

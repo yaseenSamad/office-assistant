@@ -9,7 +9,7 @@ import { Holiday, CreateHolidayDto } from '../../../core/models/holiday.model';
 @Component({
   selector: 'app-holiday-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="holiday-container">
       <!-- Header Section -->

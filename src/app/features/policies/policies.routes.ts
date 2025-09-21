@@ -2,10 +2,10 @@ import { Routes } from '@angular/router';
 import { hrGuard } from '../../core/guards/hr.guard';
 
 export const POLICIES_ROUTES: Routes = [
-  // {
-  //   path: '',
-  //   loadComponent: () => import('./policy-list/policy-list.component').then(c => c.PolicyListComponent)
-  // },
+  {
+    path: '',
+    loadComponent: () => import('./policies.component').then(c => c.PolicyComponent)
+  },
   // {
   //   path: 'add',
   //   loadComponent: () => import('./policy-form/policy-form.component').then(c => c.PolicyFormComponent),

@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
+import { HolidayService } from '../../core/services/holiday.service';
 
 interface Holiday {
   id: string;
@@ -42,258 +43,7 @@ interface LeaveBalance {
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
-  template: `
-    <div class="dashboard-container">
-      <!-- Welcome Banner -->
-      <div class="welcome-banner">
-        <div class="welcome-content">
-          <h1>Good {{ getTimeOfDay() }}, {{ user?.firstName }}! 👋</h1>
-          <p class="welcome-subtitle">{{ getCurrentDate() }}</p>
-        </div>
-        <div class="weather-info">
-          <div class="weather-icon">☀️</div>
-          <div class="weather-details">
-            <span class="temperature">24°C</span>
-            <span class="weather-desc">Sunny</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Holiday Banner -->
-      <div class="holiday-banner" *ngIf="nextHoliday">
-        <div class="holiday-content">
-          <div class="holiday-icon">🎉</div>
-          <div class="holiday-details">
-            <h3>{{ nextHoliday.title }}</h3>
-            <p>{{ nextHoliday.daysLeft }} days to go</p>
-            <span class="holiday-badge" *ngIf="nextHoliday.isFloater">Floater</span>
-          </div>
-        </div>
-        <div class="holiday-date">
-          <span class="date-day">{{ nextHoliday.date | date:'dd' }}</span>
-          <span class="date-month">{{ nextHoliday.date | date:'MMM' }}</span>
-        </div>
-      </div>
-
-      <!-- Quick Actions & Clock In/Out -->
-      <div class="quick-actions-section">
-        <div class="clock-section">
-          <div class="clock-display">
-            <div class="current-time">{{ currentTime }}</div>
-            <div class="clock-status" [class]="clockStatus">
-              {{ clockStatus === 'clocked-in' ? 'Clocked In' : 'Clocked Out' }}
-            </div>
-          </div>
-          <div class="clock-actions">
-            <button 
-              class="btn clock-btn" 
-              [class.btn-success]="clockStatus === 'clocked-out'"
-              [class.btn-error]="clockStatus === 'clocked-in'"
-              (click)="toggleClock()"
-            >
-              {{ clockStatus === 'clocked-out' ? 'Clock In' : 'Clock Out' }}
-            </button>
-            <div class="work-hours" *ngIf="clockStatus === 'clocked-in'">
-              Working: {{ workingHours }}
-            </div>
-          </div>
-        </div>
-
-        <div class="quick-actions-grid">
-          <a routerLink="/leave/request" class="quick-action-card">
-            <span class="action-icon">📅</span>
-            <span class="action-text">Apply Leave</span>
-          </a>
-          <a routerLink="/attendance" class="quick-action-card">
-            <span class="action-icon">⏰</span>
-            <span class="action-text">Attendance</span>
-          </a>
-          <a routerLink="/policies" class="quick-action-card">
-            <span class="action-icon">📋</span>
-            <span class="action-text">Policies</span>
-          </a>
-          <a routerLink="/teams" class="quick-action-card">
-            <span class="action-icon">👥</span>
-            <span class="action-text">Teams</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Main Dashboard Grid -->
-      <div class="dashboard-grid">
-        <!-- Left Column -->
-        <div class="left-column">
-          <!-- Blog Section -->
-          <div class="dashboard-card blog-section">
-            <div class="card-header">
-              <h2>Company Feed</h2>
-              <button class="btn btn-primary btn-sm" (click)="showBlogForm = !showBlogForm">
-                {{ showBlogForm ? 'Cancel' : 'Write Post' }}
-              </button>
-            </div>
-            
-            <!-- Blog Form -->
-            <div class="blog-form" *ngIf="showBlogForm">
-              <textarea 
-                [(ngModel)]="newBlogContent" 
-                placeholder="What's on your mind?"
-                class="blog-textarea"
-                rows="3"
-              ></textarea>
-              <div class="blog-form-actions">
-                <button class="btn btn-primary btn-sm" (click)="publishBlog()" [disabled]="!newBlogContent.trim()">
-                  Publish
-                </button>
-              </div>
-            </div>
-
-            <!-- Blog Posts -->
-            <div class="blog-posts">
-              <div class="blog-post" *ngFor="let post of blogPosts">
-                <div class="post-header">
-                  <div class="post-avatar">{{ getInitials(post.author) }}</div>
-                  <div class="post-meta">
-                    <h4>{{ post.author }}</h4>
-                    <span class="post-time">{{ getTimeAgo(post.timestamp) }}</span>
-                  </div>
-                </div>
-                <div class="post-content">{{ post.content }}</div>
-                <div class="post-actions">
-                  <button class="post-action" (click)="likePost(post)">
-                    <span class="action-icon">👍</span>
-                    {{ post.likes }}
-                  </button>
-                  <button class="post-action">
-                    <span class="action-icon">💬</span>
-                    {{ post.comments }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Today's Leave -->
-          <div class="dashboard-card">
-            <div class="card-header">
-              <h2>Today's Leave</h2>
-            </div>
-            <div class="leave-today">
-              <div class="leave-item" *ngFor="let leave of todaysLeave">
-                <div class="leave-avatar">{{ getInitials(leave.name) }}</div>
-                <div class="leave-details">
-                  <h4>{{ leave.name }}</h4>
-                  <p>{{ leave.department }} • {{ leave.leaveType }}</p>
-                </div>
-                <div class="leave-status" [class]="leave.status">
-                  {{ leave.status }}
-                </div>
-              </div>
-              <div class="no-leave" *ngIf="todaysLeave.length === 0">
-                <span class="material-icons">check_circle</span>
-                <p>No one is on leave today</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column -->
-        <div class="right-column">
-          <!-- Leave Balance -->
-          <div class="dashboard-card leave-balance-card">
-            <div class="card-header">
-              <h2>Leave Balance</h2>
-              <a routerLink="/leave" class="view-all-link">View All</a>
-            </div>
-            <div class="leave-balances">
-              <div class="balance-item" *ngFor="let balance of leaveBalances">
-                <div class="balance-header">
-                  <span class="balance-type">{{ balance.type }}</span>
-                  <span class="balance-available">{{ balance.available }}/{{ balance.total }}</span>
-                </div>
-                <div class="balance-bar">
-                  <div class="balance-progress" [style.width.%]="(balance.available / balance.total) * 100"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Celebrations -->
-          <div class="dashboard-card celebrations-card">
-            <div class="card-header">
-              <h2>Celebrations</h2>
-            </div>
-            <div class="celebrations">
-              <!-- Birthdays -->
-              <div class="celebration-section" *ngIf="birthdays.length > 0">
-                <h3>🎂 Birthdays Today</h3>
-                <div class="celebration-item" *ngFor="let person of birthdays">
-                  <div class="celebration-avatar">{{ getInitials(person.name) }}</div>
-                  <div class="celebration-details">
-                    <h4>{{ person.name }}</h4>
-                    <p>{{ person.department }}</p>
-                  </div>
-                  <button class="btn btn-sm btn-outline">Wish</button>
-                </div>
-              </div>
-
-              <!-- Work Anniversaries -->
-              <div class="celebration-section" *ngIf="anniversaries.length > 0">
-                <h3>🎉 Work Anniversaries</h3>
-                <div class="celebration-item" *ngFor="let person of anniversaries">
-                  <div class="celebration-avatar">{{ getInitials(person.name) }}</div>
-                  <div class="celebration-details">
-                    <h4>{{ person.name }}</h4>
-                    <p>{{ person.yearsCompleted }} years • {{ person.department }}</p>
-                  </div>
-                  <button class="btn btn-sm btn-outline">Congratulate</button>
-                </div>
-              </div>
-
-              <!-- New Joinees -->
-              <div class="celebration-section" *ngIf="newJoinees.length > 0">
-                <h3>👋 New Joinees</h3>
-                <div class="celebration-item" *ngFor="let person of newJoinees">
-                  <div class="celebration-avatar">{{ getInitials(person.name) }}</div>
-                  <div class="celebration-details">
-                    <h4>{{ person.name }}</h4>
-                    <p>{{ person.department }}</p>
-                  </div>
-                  <button class="btn btn-sm btn-outline">Welcome</button>
-                </div>
-              </div>
-
-              <!-- No Celebrations -->
-              <div class="no-celebrations" *ngIf="birthdays.length === 0 && anniversaries.length === 0 && newJoinees.length === 0">
-                <span class="material-icons">cake</span>
-                <p>No celebrations today</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Upcoming Holidays -->
-          <div class="dashboard-card">
-            <div class="card-header">
-              <h2>Upcoming Holidays</h2>
-              <a routerLink="/holidays" class="view-all-link">View All</a>
-            </div>
-            <div class="upcoming-holidays">
-              <div class="holiday-item" *ngFor="let holiday of upcomingHolidays">
-                <div class="holiday-date-small">
-                  <span class="date-day">{{ holiday.date | date:'dd' }}</span>
-                  <span class="date-month">{{ holiday.date | date:'MMM' }}</span>
-                </div>
-                <div class="holiday-info">
-                  <h4>{{ holiday.title }}</h4>
-                  <p>{{ holiday.daysLeft }} days left</p>
-                  <span class="holiday-badge" *ngIf="holiday.isFloater">Floater</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './dashboard.component.html',
   styles: [`
     .dashboard-container {
       max-width: 1400px;
@@ -874,7 +624,7 @@ export class DashboardComponent implements OnInit {
 
   // Holiday data
   nextHoliday: Holiday | null = null;
-  upcomingHolidays: Holiday[] = [];
+  // upcomingHolidays: Holiday[] = [];
 
   blogPosts: BlogPost[] = [
     {
@@ -917,7 +667,7 @@ export class DashboardComponent implements OnInit {
     { name: 'Emma Wilson', department: 'HR', leaveType: 'Annual Leave', status: 'approved' }
   ];
 
-  upcomingHolidays: Holiday[] = [
+  upcomingHolidays: any[] = [
     {
       id: '2',
       name: 'Memorial Day',

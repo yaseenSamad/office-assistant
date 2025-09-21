@@ -11,7 +11,7 @@ import { User } from '../../../core/models/user.model';
 @Component({
   selector: 'app-team-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="teams-container">
       <!-- Header Section -->

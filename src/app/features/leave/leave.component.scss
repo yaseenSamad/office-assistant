@@ -1,0 +1,51 @@
+h2, h3, h4 {
+  margin-bottom: var(--space-2);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-block: 25px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center; 
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--neutral-300);
+  padding: var(--space-2);
+  vertical-align: middle;
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 200px;
+}
+
+.table th {
+  background-color: var(--neutral-200);
+  font-weight: 600;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: var(--neutral-100);
+}
+
+.table tbody tr:hover {
+  background-color: var(--neutral-200);
+  transition: background-color var(--transition-fast);
+}
+
+
+form .form-control, form select, form textarea {
+  width: 100%;
+}
+
+.btn-primary {
+  min-width: 120px;
+}
+
+
