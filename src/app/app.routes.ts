@@ -28,6 +28,11 @@ export const APP_ROUTES: Routes = [
         canActivate: [adminGuard]
       },
       {
+        path: 'register',
+        loadChildren: () => import('./features/register/register.routes').then(m => m.REGISTER_ROUTES),
+        // canActivate: [adminGuard]
+      },
+      {
         path: 'holidays',
         loadChildren: () => import('./features/holidays/holidays.routes').then(m => m.HOLIDAYS_ROUTES)
       },

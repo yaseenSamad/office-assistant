@@ -1,0 +1,60 @@
+.post-management-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Create Post Card --- */
+.create-post-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.create-post-card textarea {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neutral-300);
+  padding: var(--space-2);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+}
+
+/* --- Post Cards --- */
+.post-card {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-content {
+  white-space: pre-wrap; /* wrap long text */
+  word-break: break-word;
+}
+
+.post-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* --- Comments --- */
+.comments-section {
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--neutral-300);
+  padding-top: var(--space-2);
+}
+
+.comments-section input {
+  width: 100%;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neutral-300);
+  font-size: var(--font-size-sm);
+}

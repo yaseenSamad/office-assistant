@@ -1,0 +1,127 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.card {
+  background-color: white;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+h2 {
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-2xl);
+  color: var(--primary);
+}
+
+.form-group {
+  margin-bottom: var(--space-3);
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--space-1);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  transition: border-color var(--transition-fast);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+button {
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  border: none;
+  transition: all var(--transition-fast);
+}
+
+button.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+button.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.col-md-4, .col-md-6 {
+  flex: 1 0 calc(33.333% - var(--space-3));
+}
+
+.col-md-6 {
+  flex: 1 0 calc(50% - var(--space-3));
+}
+
+.error {
+  font-size: var(--font-size-sm);
+  color: var(--error);
+  margin-top: var(--space-1);
+}
+
+.password-group {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 70px; // space for the button inside
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  font-size: var(--font-size-base);
+}
+
+.password-wrapper .toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+
+@media (max-width: 768px) {
+  .col-md-4, .col-md-6 {
+    flex: 1 0 100%;
+  }
+}

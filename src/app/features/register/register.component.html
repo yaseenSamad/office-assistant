@@ -1,0 +1,205 @@
+<div class="container">
+  <div class="card">
+    <h2>Register User</h2>
+
+    <form [formGroup]="userForm" (ngSubmit)="submitUser()">
+      <div class="row">
+        <!-- First Name -->
+        <div class="col-md-6 form-group">
+          <label>First Name *</label>
+          <input type="text" formControlName="firstName" />
+          <small *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="error">
+            First name is required.
+          </small>
+        </div>
+
+        <!-- Last Name -->
+        <div class="col-md-6 form-group">
+          <label>Last Name *</label>
+          <input type="text" formControlName="lastName" />
+          <small *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="error">
+            Last name is required.
+          </small>
+        </div>
+
+        <!-- Username -->
+        <div class="col-md-6 form-group">
+          <label>Username *</label>
+          <input type="text" formControlName="username" />
+          <small *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched" class="error">
+            Only letters, digits, and underscores are allowed.
+          </small>
+        </div>
+
+        <!-- Password with toggle -->
+        <div class="col-md-6 form-group password-group">
+          <label>Password *</label>
+          <div class="password-wrapper">
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" />
+            <button type="button" class="toggle-btn" (click)="togglePassword()">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <small *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="error">
+            Password must be at least 6 characters.
+          </small>
+        </div>
+
+        <!-- Primary Phone -->
+        <div class="col-md-6 form-group">
+          <label>Primary Phone *</label>
+          <input type="tel" formControlName="primaryPhone" />
+          <small *ngIf="userForm.get('primaryPhone')?.invalid && userForm.get('primaryPhone')?.touched" class="error">
+            Must be a 10-digit number.
+          </small>
+        </div>
+
+        <div class="col-md-6 form-group">
+          <label>Secondary Phone</label>
+          <input type="tel" formControlName="secondaryPhone" />
+          <small *ngIf="userForm.get('secondaryPhone')?.invalid && userForm.get('secondaryPhone')?.touched" class="error">
+            Must be a 10-digit number.
+          </small>
+        </div>
+
+
+
+        <!-- Primary Email -->
+        <div class="col-md-6 form-group">
+          <label>Primary Email *</label>
+          <input type="email" formControlName="primaryEmail" />
+          <small *ngIf="userForm.get('primaryEmail')?.invalid && userForm.get('primaryEmail')?.touched" class="error">
+            Invalid email format.
+          </small>
+        </div>
+
+        <div class="col-md-6 form-group">
+          <label>Secondary Email</label>
+          <input type="email" formControlName="secondaryEmail" />
+          <small *ngIf="userForm.get('secondaryEmail')?.invalid && userForm.get('secondaryEmail')?.touched" class="error">
+            Invalid email format.
+          </small>
+        </div>
+
+
+
+        <!-- Permanent Address -->
+        <div class="col-md-6 form-group">
+          <label>Permanent Address *</label>
+          <textarea formControlName="permanentAddress"></textarea>
+          <small *ngIf="userForm.get('permanentAddress')?.invalid && userForm.get('permanentAddress')?.touched" class="error">
+            Permanent Address is required.
+          </small>
+        </div>
+
+        <!-- Temporary Address -->
+        <div class="col-md-6 form-group">
+          <label>Temporary Address</label>
+          <textarea formControlName="temporaryAddress"></textarea>
+        </div>
+
+        <!-- DOB -->
+        <div class="col-md-6 form-group">
+          <label>Date of Birth *</label>
+          <input type="date" formControlName="dob" />
+          <small *ngIf="userForm.get('dob')?.invalid && userForm.get('dob')?.touched" class="error">
+            Date of Birth is required.
+          </small>
+        </div>
+
+        <!-- Blood Group -->
+        <div class="col-md-6 form-group">
+          <label>Blood Group *</label>
+          <select formControlName="bloodGroup">
+            <option *ngFor="let bg of bloodGroups" [value]="bg">{{ bg }}</option>
+          </select>
+        </div>
+
+        <!-- Gender -->
+        <div class="col-md-6 form-group">
+          <label>Gender *</label>
+          <select formControlName="gender">
+            <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+
+        <!-- Marital Status -->
+        <div class="col-md-6 form-group">
+          <label>Marital Status *</label>
+          <select formControlName="maritalStatus">
+            <option *ngFor="let ms of maritalStatuses" [value]="ms">{{ ms }}</option>
+          </select>
+        </div>
+
+        <!-- Office ID -->
+        <div class="col-md-6 form-group">
+          <label>Office ID *</label>
+          <input type="text" formControlName="officeId" />
+          <small *ngIf="userForm.get('officeId')?.invalid && userForm.get('officeId')?.touched" class="error">
+            Office ID is required.
+          </small>
+        </div>
+
+        <!-- Reporter -->
+        <div class="col-md-6 form-group">
+          <label>Reporter *</label>
+          <select formControlName="reporterId">
+            <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }}</option>
+          </select>
+        </div>
+
+        <!-- Department -->
+        <div class="col-md-6 form-group">
+          <label>Department *</label>
+          <select formControlName="department">
+            <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+
+        <!-- Sub Department -->
+        <div class="col-md-6 form-group">
+          <label>Sub Department *</label>
+          <select formControlName="subDepartment">
+            <option *ngFor="let sd of subDepartments" [value]="sd">{{ sd }}</option>
+          </select>
+        </div>
+
+        <!-- Role -->
+        <div class="col-md-6 form-group">
+          <label>Role *</label>
+          <select formControlName="role">
+            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+
+        <!-- Designation -->
+        <div class="col-md-6 form-group">
+          <label>Designation *</label>
+          <input type="text" formControlName="designation" />
+          <small *ngIf="userForm.get('designation')?.invalid && userForm.get('designation')?.touched" class="error">
+            Designation is required.
+          </small>
+        </div>
+
+        <!-- Nationality -->
+        <div class="col-md-6 form-group">
+          <label>Nationality *</label>
+          <input type="text" formControlName="nationality" />
+          <small *ngIf="userForm.get('nationality')?.invalid && userForm.get('nationality')?.touched" class="error">
+            Nationality is required.
+          </small>
+        </div>
+
+        <!-- LinkedIn -->
+        <div class="col-md-6 form-group">
+          <label>LinkedIn Profile</label>
+          <input type="url" formControlName="linkedin" />
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary" >Create User</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import { AppComponent } from './app/app.component';
 import { APP_ROUTES } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { errorInterceptor } from './app/core/interceptors/error.interceptor';
+import { provideToastr } from 'ngx-toastr';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -14,6 +15,11 @@ bootstrapApplication(AppComponent, {
     provideAnimations(),
     provideHttpClient(
       withInterceptors([authInterceptor, errorInterceptor])
-    )
+    ),
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true
+    })
   ]
 }).catch(err => console.error(err));

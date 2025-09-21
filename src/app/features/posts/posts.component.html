@@ -1,0 +1,54 @@
+<div class="post-management-container">
+
+  <!-- Create Post Card -->
+  <div class="card create-post-card mb-4">
+    <textarea 
+      class="form-control" 
+      [(ngModel)]="newPostContent" 
+      placeholder="Write something..." 
+      rows="3">
+    </textarea>
+    <button class="btn btn-primary mt-2" (click)="submitPost()">Post</button>
+  </div>
+
+  <!-- Post Feed -->
+  <div class="post-feed">
+    <div class="card post-card mb-3" *ngFor="let post of posts">
+
+      <!-- Post Header -->
+      <div class="post-header d-flex justify-content-between align-items-center">
+        <div class="mb-2">
+          <strong >{{ post.authorName }}</strong> 
+          <span class="text-muted"> ({{ post.authorRole }})</span>
+          <small class="text-muted ml-2"> {{ post.timestamp | date:'short' }}</small>
+        </div>
+        <button *ngIf="canDelete(post)" class="btn btn-outline btn-error btn-sm" (click)="deletePost(post)">
+          Delete
+        </button>
+      </div>
+
+      <!-- Post Content -->
+      <div class="post-content mb-3">{{ post.content }}</div>
+
+      <!-- Post Actions -->
+      <div class="post-actions mt-3 d-flex gap-3">
+        <button class="btn btn-outline btn-primary btn-sm" (click)="toggleLike(post)">
+          <span class="material-icons">favorite</span> {{ post.likes }}
+        </button>
+        <button class="btn btn-outline btn-accent btn-sm" (click)="toggleCommentSection(post)">
+          <span class="material-icons">chat_bubble</span> {{ post.comments?.length || 0 }}
+        </button>
+      </div>
+
+      <!-- Comment Section -->
+      <div *ngIf="post.showComments" class="comments-section mt-2">
+        <div *ngFor="let comment of post.comments" class="comment mb-2">
+          <strong>{{ comment.authorName }}</strong>: {{ comment.content }}
+        </div>
+        <input type="text" class="form-control" placeholder="Write a comment..." [(ngModel)]="post.newComment">
+        <button class="btn btn-primary btn-sm mt-1" (click)="addComment(post)">Comment</button>
+      </div>
+
+    </div>
+  </div>
+</div>
