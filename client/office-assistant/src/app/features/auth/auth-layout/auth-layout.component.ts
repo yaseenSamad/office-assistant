@@ -10,7 +10,7 @@ import { RouterOutlet } from '@angular/router';
       <div class="auth-card">
         <div class="auth-content">
           <div class="auth-header">
-            <h1 class="app-title">HR Management</h1>
+            <h1 class="app-title">Office Assistant</h1>
             <p class="app-subtitle">Streamlining HR operations and employee management</p>
           </div>
           
