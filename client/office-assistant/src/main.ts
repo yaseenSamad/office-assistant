@@ -8,13 +8,14 @@ import { APP_ROUTES } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 import { provideToastr } from 'ngx-toastr';
+import { apiInterceptor } from './app/core/interceptors/api.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(APP_ROUTES, withViewTransitions()),
     provideAnimations(),
     provideHttpClient(
-      withInterceptors([authInterceptor, errorInterceptor])
+      withInterceptors([authInterceptor, errorInterceptor,apiInterceptor])
     ),
     provideToastr({
       timeOut: 3000,

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -26,7 +27,7 @@ export class RegisterProfileComponent implements OnInit {
   ];
   showPassword = false;
 
-  constructor(private fb: FormBuilder, private toastr: ToastrService) {}
+  constructor(private fb: FormBuilder, private toastr: ToastrService,private userService: UserService) {}
 
   ngOnInit(): void {
     this.userForm = this.fb.group({
@@ -55,19 +56,33 @@ export class RegisterProfileComponent implements OnInit {
     });
   }
 
+  postUser(){
+
+  }
+
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
   submitUser() {
     if (this.userForm.invalid) {
-      console.log('toast')
       this.toastr.error('Please fill in all required fields correctly!', 'Form Error');
       this.userForm.markAllAsTouched();
       return;
     }
 
     console.log('User Payload:', this.userForm.value);
-    this.toastr.success('User created successfully!', 'Success');
+    this.userService.createUser(this.userForm.value).subscribe({
+      next: (res) => {
+        this.toastr.success('User created successfully!', 'Success');
+        this.userForm.reset();
+      },
+      error: (err) => {
+        this.toastr.error(err.error?.message || 'Failed to create user','Failure');
+      },
+    });
+
   }
+
+
 }

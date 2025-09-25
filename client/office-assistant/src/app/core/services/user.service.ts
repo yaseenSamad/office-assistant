@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { User, UserRole, RegisterUserDto } from '../models/user.model';
+import { HttpClient } from '@angular/common/http';
 
 // Extended mock data for demonstration
 const MOCK_USERS: User[] = [
@@ -106,6 +107,9 @@ const MOCK_USERS: User[] = [
   providedIn: 'root'
 })
 export class UserService {
+
+  constructor(private http: HttpClient){}
+
   private users = signal<User[]>(MOCK_USERS);
   
   getUsers(): Observable<User[]> {
@@ -117,23 +121,23 @@ export class UserService {
     return of(user || null);
   }
   
-  createUser(userData: RegisterUserDto): Observable<User> {
-    const newUser: User = {
-      id: (this.users().length + 1).toString(),
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      role: userData.role,
-      department: userData.department,
-      position: userData.position,
-      dateJoined: new Date(),
-      isActive: true,
-      phoneNumber: '+1-555-0' + (100 + this.users().length)
-    };
+  // createUser(userData: RegisterUserDto): Observable<User> {
+  //   const newUser: User = {
+  //     id: (this.users().length + 1).toString(),
+  //     firstName: userData.firstName,
+  //     lastName: userData.lastName,
+  //     email: userData.email,
+  //     role: userData.role,
+  //     department: userData.department,
+  //     position: userData.position,
+  //     dateJoined: new Date(),
+  //     isActive: true,
+  //     phoneNumber: '+1-555-0' + (100 + this.users().length)
+  //   };
     
-    this.users.update(users => [...users, newUser]);
-    return of(newUser);
-  }
+  //   this.users.update(users => [...users, newUser]);
+  //   return of(newUser);
+  // }
   
   updateUser(id: string, userData: Partial<User>): Observable<User> {
     const userIndex = this.users().findIndex(u => u.id === id);
@@ -153,12 +157,12 @@ export class UserService {
     return of(updatedUser);
   }
   
-  deleteUser(id: string): Observable<void> {
-    this.users.update(users => 
-      users.map(u => u.id === id ? { ...u, isActive: false } : u)
-    );
-    return of(void 0);
-  }
+  // deleteUser(id: string): Observable<void> {
+  //   this.users.update(users => 
+  //     users.map(u => u.id === id ? { ...u, isActive: false } : u)
+  //   );
+  //   return of(void 0);
+  // }
   
   getUsersByDepartment(department: string): Observable<User[]> {
     const departmentUsers = this.users().filter(u => 
@@ -173,4 +177,21 @@ export class UserService {
     );
     return of(roleUsers);
   }
+
+   getAllUsers(): Observable<any> {
+    return this.http.get('/api/users');
+  }
+
+  getUserById(id: string): Observable<any> {
+    return this.http.get(`/api/users/${id}`);
+  }
+
+  createUser(userData: any): Observable<any> {
+    return this.http.post('/api/users', userData);
+  }
+
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete(`/api/users/${id}`);
+  }
+  
 }
