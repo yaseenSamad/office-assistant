@@ -485,7 +485,7 @@ export class TeamListComponent implements OnInit {
   get f() { return this.teamForm.controls; }
 
   loadTeams(): void {
-    this.teamService.getTeams().subscribe({
+    this.teamService.getTeamList().subscribe({
       next: (teams) => {
         this.teams.set(teams);
       },
@@ -496,14 +496,14 @@ export class TeamListComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.userService.getUsers().subscribe({
-      next: (users) => {
-        this.users.set(users);
-      },
-      error: (error) => {
-        console.error('Error loading users:', error);
-      }
-    });
+    // this.userService.getUsers().subscribe({
+    //   next: (users) => {
+    //     this.users.set(users);
+    //   },
+    //   error: (error) => {
+    //     console.error('Error loading users:', error);
+    //   }
+    // });
   }
 
   canCreateTeam(): boolean {
