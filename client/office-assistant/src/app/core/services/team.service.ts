@@ -153,6 +153,10 @@ export class TeamService {
     return this.http.post<any>('/api/teams', teamData).pipe(map((res) => res));
   }
 
+  // Add members to a team
+  addTeamMembers(teamId: string, membersData: any): Observable<any> {
+    return this.http.post<any>(`/api/teams/${teamId}/members`, membersData).pipe(map((res) => res));
+  }
   // Update a team
   updateTeam(teamId: string, teamData: any): Observable<any> {
     return this.http.put<any>(`/api/teams/${teamId}`, teamData).pipe(map((res) => res));
