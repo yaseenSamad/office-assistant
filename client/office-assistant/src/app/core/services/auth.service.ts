@@ -3,120 +3,63 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { UserService } from './user.service';
 import { User, UserCredentials, AuthResponse, UserRole, RegisterUserDto } from '../models/user.model';
 
-// Mock data for demonstration (would be replaced with real API calls)
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@example.com',
-    role: UserRole.ADMIN,
-    isActive: true,
-    department: 'Management',
-    position: 'System Administrator',
-    dateJoined: new Date('2023-01-01')
-  },
-  {
-    id: '2',
-    firstName: 'HR',
-    lastName: 'Manager',
-    email: 'hr@example.com',
-    role: UserRole.HR,
-    isActive: true,
-    department: 'Human Resources',
-    position: 'HR Manager',
-    dateJoined: new Date('2023-01-10')
-  },
-  {
-    id: '3',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'employee@example.com',
-    role: UserRole.EMPLOYEE,
-    isActive: true,
-    department: 'Engineering',
-    position: 'Software Developer',
-    dateJoined: new Date('2023-02-15')
-  }
-];
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'user_data';
-  
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
   isAuthenticated = signal(false);
-  
+
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {}
 
   initAuth(): void {
     const token = this.getToken();
     const userData = this.getUserData();
-    
+
     if (token && userData) {
       this.currentUserSubject.next(userData);
       this.isAuthenticated.set(true);
     }
   }
 
-  login(credentials: UserCredentials): Observable<AuthResponse> {
-    // Mock implementation (replace with actual API call)
-    const user = MOCK_USERS.find(u => u.email === credentials.email);
-    
-    if (user && credentials.password === 'password') { // Simple mock validation
-      const response: AuthResponse = {
-        user,
-        token: 'mock_jwt_token_' + Date.now()
-      };
-      
-      this.setToken(response.token);
-      this.setUserData(response.user);
-      this.currentUserSubject.next(response.user);
-      this.isAuthenticated.set(true);
-      
-      return of(response);
-    }
-    
-    return throwError(() => new Error('Invalid credentials'));
+  login(credentials: UserCredentials): Observable<any> {
+    return this.http.post<any>('/auth/login', credentials).pipe(
+      tap((response) => {
+        if(response?.statusCode === 200 && response?.data?.user && response?.data?.token){
+          this.setToken(response?.data?.token);
+          this.setUserData( response?.data?.user);
+          this.currentUserSubject.next( response?.data?.user);
+          this.isAuthenticated.set(true);
+        }else {
+          throw new Error(response?.message || 'Login failed');
+        }
+      }),
+      catchError((error) => {
+        return throwError(() => error.error || 'Login failed');
+      })
+    );
   }
 
   register(userData: RegisterUserDto): Observable<AuthResponse> {
-    // Mock implementation (replace with actual API call)
-    const newUser: User = {
-      id: (MOCK_USERS.length + 1).toString(),
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      role: userData.role,
-      department: userData.department,
-      position: userData.position,
-      dateJoined: new Date(),
-      isActive: true
-    };
-    
-    const response: AuthResponse = {
-      user: newUser,
-      token: 'mock_jwt_token_' + Date.now()
-    };
-    
-    MOCK_USERS.push(newUser);
-    
-    return of(response).pipe(
-      tap(res => {
+    return this.http.post<AuthResponse>('/auth/register', userData).pipe(
+      tap((res) => {
         this.setToken(res.token);
         this.setUserData(res.user);
         this.currentUserSubject.next(res.user);
         this.isAuthenticated.set(true);
-      })
+      }),
+      catchError((error) => throwError(() => error))
     );
   }
 
@@ -170,8 +113,5 @@ export class AuthService {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
 
-  // Method to get all users for team management
-  getAllUsers(): User[] {
-    return MOCK_USERS.filter(u => u.isActive);
-  }
+
 }

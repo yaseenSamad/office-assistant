@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { map, Observable, of, throwError } from 'rxjs';
 import { Team, CreateTeamDto, UpdateTeamDto } from '../models/team.model';
+import { HttpClient } from '@angular/common/http';
 
 // Mock data for demonstration
 const MOCK_TEAMS: Team[] = [
@@ -37,6 +38,7 @@ const MOCK_TEAMS: Team[] = [
   providedIn: 'root'
 })
 export class TeamService {
+  constructor(private http: HttpClient){}
   private teams = signal<Team[]>(MOCK_TEAMS);
   
   getTeams(): Observable<Team[]> {
@@ -48,44 +50,44 @@ export class TeamService {
     return of(team || null);
   }
   
-  createTeam(teamData: CreateTeamDto): Observable<Team> {
-    const newTeam: Team = {
-      id: (this.teams().length + 1).toString(),
-      name: teamData.name,
-      description: teamData.description,
-      leader: teamData.leader,
-      members: teamData.members || [teamData.leader],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+  // createTeam(teamData: CreateTeamDto): Observable<Team> {
+  //   const newTeam: Team = {
+  //     id: (this.teams().length + 1).toString(),
+  //     name: teamData.name,
+  //     description: teamData.description,
+  //     leader: teamData.leader,
+  //     members: teamData.members || [teamData.leader],
+  //     createdAt: new Date(),
+  //     updatedAt: new Date()
+  //   };
     
-    this.teams.update(teams => [...teams, newTeam]);
-    return of(newTeam);
-  }
+  //   this.teams.update(teams => [...teams, newTeam]);
+  //   return of(newTeam);
+  // }
   
-  updateTeam(id: string, teamData: UpdateTeamDto): Observable<Team> {
-    const teamIndex = this.teams().findIndex(t => t.id === id);
-    if (teamIndex === -1) {
-      return throwError(() => new Error('Team not found'));
-    }
+  // updateTeam(id: string, teamData: UpdateTeamDto): Observable<Team> {
+  //   const teamIndex = this.teams().findIndex(t => t.id === id);
+  //   if (teamIndex === -1) {
+  //     return throwError(() => new Error('Team not found'));
+  //   }
     
-    const updatedTeam: Team = {
-      ...this.teams()[teamIndex],
-      ...teamData,
-      updatedAt: new Date()
-    };
+  //   const updatedTeam: Team = {
+  //     ...this.teams()[teamIndex],
+  //     ...teamData,
+  //     updatedAt: new Date()
+  //   };
     
-    this.teams.update(teams => 
-      teams.map(t => t.id === id ? updatedTeam : t)
-    );
+  //   this.teams.update(teams => 
+  //     teams.map(t => t.id === id ? updatedTeam : t)
+  //   );
     
-    return of(updatedTeam);
-  }
+  //   return of(updatedTeam);
+  // }
   
-  deleteTeam(id: string): Observable<void> {
-    this.teams.update(teams => teams.filter(t => t.id !== id));
-    return of(void 0);
-  }
+  // deleteTeam(id: string): Observable<void> {
+  //   this.teams.update(teams => teams.filter(t => t.id !== id));
+  //   return of(void 0);
+  // }
   
   addMemberToTeam(teamId: string, userId: string): Observable<Team> {
     const team = this.teams().find(t => t.id === teamId);
@@ -135,4 +137,31 @@ export class TeamService {
     );
     return of(userTeams);
   }
+
+  // Get all teams
+  getTeamList(): Observable<any> {
+    return this.http.get<any>('/api/teams').pipe(map((res) => res));
+  }
+
+  // Get a single team by ID
+  getTeamById(teamId: string): Observable<any> {
+    return this.http.get<any>(`/api/teams/${teamId}`).pipe(map((res) => res));
+  }
+
+  // Create a new team
+  createTeam(teamData: any): Observable<any> {
+    return this.http.post<any>('/api/teams', teamData).pipe(map((res) => res));
+  }
+
+  // Update a team
+  updateTeam(teamId: string, teamData: any): Observable<any> {
+    return this.http.put<any>(`/api/teams/${teamId}`, teamData).pipe(map((res) => res));
+  }
+
+  // Delete a team
+  deleteTeam(teamId: string): Observable<any> {
+    return this.http.delete<any>(`/api/teams/${teamId}`).pipe(map((res) => res));
+  }
+
+
 }

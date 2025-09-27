@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     userId: {
       type: DataTypes.UUID,
       primaryKey: true,
-      defaultValue: uuidv4,
+      defaultValue: DataTypes.UUIDV4,
     },
     username: {
       type: DataTypes.STRING(50),
@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     department: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.JSON,
       allowNull: false,
     },
     subDepartment: {

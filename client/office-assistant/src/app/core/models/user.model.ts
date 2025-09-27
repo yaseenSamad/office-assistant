@@ -5,21 +5,34 @@ export enum UserRole {
 }
 
 export interface User {
-  id: string;
+  userId: string;               // UUID
+  username: string;
+  password: string;             // Hashed password in DB
   firstName: string;
   lastName: string;
-  email: string;
+  primaryPhone: string;         // 10–15 digits
+  secondaryPhone?: string;      // optional
+  primaryEmail: string;
+  secondaryEmail?: string;      // optional
+  temporaryAddress?: string;    // optional
+  permanentAddress: string;
+  officeId: string;
+  bloodGroup: string;
+  dob: string;                  // YYYY-MM-DD
+  gender: 'Male' | 'Female' | 'Other';
+  maritalStatus: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  nationality: string;
+  linkedin?: string;            // optional
+  department: string;
+  subDepartment: {itemCode: string, itemName: string};
   role: UserRole;
-  profileImage?: string;
-  department?: string;
-  position?: string;
-  dateJoined?: Date;
-  phoneNumber?: string;
-  isActive: boolean;
+  designation: string;
+  reporterId?: string;          // UUID of manager/reporter
 }
 
+
 export interface UserCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 

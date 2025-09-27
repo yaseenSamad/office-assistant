@@ -56,10 +56,6 @@ export class RegisterProfileComponent implements OnInit {
     });
   }
 
-  postUser(){
-
-  }
-
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }

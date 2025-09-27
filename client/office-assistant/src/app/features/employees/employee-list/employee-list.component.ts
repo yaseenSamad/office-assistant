@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User, UserRole } from '../../../core/models/user.model';
+import { TeamService } from '../../../core/services/team.service';
+import { commonService } from '../../../core/services/common.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -31,13 +33,11 @@ import { User, UserRole } from '../../../core/models/user.model';
           </div>
           <select [(ngModel)]="selectedDepartment" (change)="filterEmployees()" class="filter-select">
             <option value="">All Departments</option>
-            <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+            <option *ngFor="let dept of departments" [value]="dept.itemName">{{ dept.itemName }}</option>
           </select>
           <select [(ngModel)]="selectedRole" (change)="filterEmployees()" class="filter-select">
             <option value="">All Roles</option>
-            <option value="ADMIN">Admin</option>
-            <option value="HR">HR</option>
-            <option value="EMPLOYEE">Employee</option>
+            <option *ngFor="let role of rolesList" [value]="role">{{ role }}</option>
           </select>
         </div>
       </div>
@@ -72,34 +72,34 @@ import { User, UserRole } from '../../../core/models/user.model';
             
             <div class="employee-info">
               <div class="employee-name">
-                {{ employee.firstName }} {{ employee.lastName }}
+                {{ employee?.firstName }} {{ employee?.lastName }}
               </div>
               <div class="employee-position">
-                {{ employee.position }}
+                {{ employee?.designation }}
               </div>
               <div class="employee-department">
-                {{ employee.department }}
+                {{ employee?.department.itemName }}
               </div>
             </div>
             
             <div class="employee-details">
               <div class="detail-item">
                 <span class="material-icons">email</span>
-                <span class="detail-text">{{ employee.email }}</span>
+                <span class="detail-text">{{ employee?.primaryEmail }}</span>
               </div>
-              <div class="detail-item" *ngIf="employee.phoneNumber">
+              <div class="detail-item" *ngIf="employee?.primaryPhone">
                 <span class="material-icons">phone</span>
-                <span class="detail-text">{{ employee.phoneNumber }}</span>
+                <span class="detail-text">{{ employee?.primaryPhone }}</span>
               </div>
               <div class="detail-item">
                 <span class="material-icons">calendar_today</span>
-                <span class="detail-text">Joined {{ employee.dateJoined | date:'MMM yyyy' }}</span>
+                <span class="detail-text">Joined {{ employee?.createdAt | date:'MMM yyyy' }}</span>
               </div>
             </div>
             
             <div class="employee-role">
-              <span class="role-badge" [class]="getRoleClass(employee.role)">
-                {{ formatRole(employee.role) }}
+              <span class="role-badge" [class]="getRoleClass(employee?.role)">
+                {{ formatRole(employee?.role) }}
               </span>
             </div>
           </div>
@@ -382,56 +382,63 @@ import { User, UserRole } from '../../../core/models/user.model';
 export class EmployeeListComponent implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private teamService = inject(TeamService)
+  private commonService = inject(commonService)
 
   employees = signal<User[]>([]);
   filteredEmployees = signal<User[]>([]);
   searchTerm = '';
-  selectedDepartment = '';
+  selectedDepartment: string = '';
   selectedRole = '';
   departments: any[] = [];
+  rolesList: any[] = [];
 
   ngOnInit(): void {
     this.loadEmployees();
+    this.departments = this.commonService.departmentList
+    this.rolesList = this.commonService.rolesList
   }
 
   loadEmployees(): void {
-    this.userService.getUsers().subscribe({
+    this.userService.getAllUsers().subscribe({
       next: (users) => {
-        this.employees.set(users);
-        this.filteredEmployees.set(users);
-        this.extractDepartments(users);
+        if(users.data && users.statusCode == 200){
+          this.employees.set(users.data);
+          this.filteredEmployees.set(users.data);
+        }else{
+          this.employees.set([]);
+          this.filteredEmployees.set([]);
+        }
+
       },
       error: (error) => {
+        this.employees.set([]);
+        this.filteredEmployees.set([]);
         console.error('Error loading employees:', error);
       }
     });
   }
 
-  extractDepartments(users: User[]): void {
-    const depts = [...new Set(users.map(u => u.department).filter(d => d))];
-    this.departments = depts.sort();
-  }
-
   filterEmployees(): void {
-    let filtered = this.employees();
+    let filtered: any = this.employees();
 
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(emp =>
+      filtered = filtered.filter((emp: any) =>
         emp.firstName.toLowerCase().includes(term) ||
         emp.lastName.toLowerCase().includes(term) ||
-        emp.email.toLowerCase().includes(term) ||
-        emp.position?.toLowerCase().includes(term) ||
-        emp.department?.toLowerCase().includes(term)
+        emp.primaryEmail.toLowerCase().includes(term) ||
+        emp.designation?.toLowerCase().includes(term) ||
+        emp.department?.itemName?.toLowerCase().includes(term)
       );
     }
 
     if (this.selectedDepartment) {
-      filtered = filtered.filter(emp => emp.department === this.selectedDepartment);
+      filtered = filtered.filter((emp: any) => emp.department?.itemName === this?.selectedDepartment);
     }
 
     if (this.selectedRole) {
-      filtered = filtered.filter(emp => emp.role === this.selectedRole);
+      filtered = filtered.filter((emp: any) => emp.role.toLowerCase() === this.selectedRole.toLowerCase());
     }
 
     this.filteredEmployees.set(filtered);
@@ -444,9 +451,7 @@ export class EmployeeListComponent implements OnInit {
     this.filteredEmployees.set(this.employees());
   }
 
-  getEmployeesByRole(role: string): User[] {
-    return this.employees().filter(emp => emp.role === role);
-  }
+
 
   getInitials(firstName: string, lastName: string): string {
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
@@ -454,6 +459,10 @@ export class EmployeeListComponent implements OnInit {
 
   formatRole(role: UserRole): string {
     return role.charAt(0) + role.slice(1).toLowerCase();
+  }
+
+  getEmployeesByRole(role: string): User[] {
+    return this.employees().filter(emp => emp.role.toLowerCase() === role.toLowerCase());
   }
 
   getRoleClass(role: UserRole): string {

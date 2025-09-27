@@ -12,227 +12,7 @@ import { User } from '../../../core/models/user.model';
   selector: 'app-team-list',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  template: `
-    <div class="teams-container">
-      <!-- Header Section -->
-      <div class="teams-header">
-        <div class="header-content">
-          <h1>Teams</h1>
-          <p>Manage and view all company teams</p>
-        </div>
-        <div class="header-actions" *ngIf="canCreateTeam()">
-          <button class="btn btn-primary" (click)="openCreateModal()">
-            <span class="material-icons">add</span>
-            Create Team
-          </button>
-        </div>
-      </div>
-
-      <!-- Team Stats -->
-      <div class="team-stats" *ngIf="teams().length > 0">
-        <div class="stat-card">
-          <div class="stat-number">{{ teams().length }}</div>
-          <div class="stat-label">Total Teams</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ getTotalMembers() }}</div>
-          <div class="stat-label">Total Members</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ getAverageTeamSize() }}</div>
-          <div class="stat-label">Avg Team Size</div>
-        </div>
-      </div>
-
-      <!-- Teams List -->
-      <div class="teams-content">
-        <div class="teams-grid" *ngIf="teams().length > 0">
-          <div class="team-card" *ngFor="let team of teams()">
-            <div class="team-header">
-              <div class="team-info">
-                <h3 class="team-name">{{ team.name }}</h3>
-                <p class="team-description" *ngIf="team.description">{{ team.description }}</p>
-              </div>
-              <div class="team-actions" *ngIf="canManageTeam()">
-                <button class="action-btn edit-btn" (click)="editTeam(team)" title="Edit Team">
-                  <span class="material-icons">edit</span>
-                </button>
-                <button class="action-btn delete-btn" (click)="deleteTeam(team)" title="Delete Team">
-                  <span class="material-icons">delete</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="team-leader">
-              <div class="leader-info">
-                <div class="leader-avatar">
-                  {{ getLeaderInitials(team.leader) }}
-                </div>
-                <div class="leader-details">
-                  <span class="leader-label">Team Leader</span>
-                  <span class="leader-name">{{ getLeaderName(team.leader) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="team-members">
-              <div class="members-header">
-                <span class="members-count">{{ team.members.length }} Members</span>
-                <button 
-                  class="btn btn-sm btn-outline" 
-                  *ngIf="canAssignMembers()"
-                  (click)="openMembersModal(team)"
-                >
-                  Manage Members
-                </button>
-              </div>
-              <div class="members-list">
-                <div class="member-avatar" 
-                     *ngFor="let memberId of team.members.slice(0, 5)" 
-                     [title]="getMemberName(memberId)">
-                  {{ getMemberInitials(memberId) }}
-                </div>
-                <div class="more-members" *ngIf="team.members.length > 5">
-                  +{{ team.members.length - 5 }}
-                </div>
-              </div>
-            </div>
-
-            <div class="team-meta">
-              <span class="created-date">Created {{ team.createdAt | date:'MMM dd, yyyy' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="teams().length === 0">
-          <div class="empty-icon">👥</div>
-          <h3>No Teams</h3>
-          <p>There are no teams created yet.</p>
-          <button class="btn btn-primary" *ngIf="canCreateTeam()" (click)="openCreateModal()">
-            Create First Team
-          </button>
-        </div>
-      </div>
-
-      <!-- Create/Edit Team Modal -->
-      <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h2>{{ editingTeam ? 'Edit Team' : 'Create New Team' }}</h2>
-            <button class="close-btn" (click)="closeModal()">
-              <span class="material-icons">close</span>
-            </button>
-          </div>
-          
-          <form [formGroup]="teamForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-              <label for="name" class="form-label">Team Name *</label>
-              <input
-                type="text"
-                id="name"
-                formControlName="name"
-                class="form-control"
-                [class.is-invalid]="submitted && f['name'].errors"
-                placeholder="Enter team name"
-              />
-              <div class="invalid-feedback" *ngIf="submitted && f['name'].errors">
-                <div *ngIf="f.name.errors['required']">Team name is required</div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="description" class="form-label">Description</label>
-              <textarea
-                id="description"
-                formControlName="description"
-                class="form-control"
-                rows="3"
-                placeholder="Enter team description (optional)"
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="leader" class="form-label">Team Leader *</label>
-              <select
-                id="leader"
-                formControlName="leader"
-                class="form-control"
-                [class.is-invalid]="submitted && f['leader'].errors"
-              >
-                <option value="">Select a team leader</option>
-                <option *ngFor="let user of users()" [value]="user.id">
-                  {{ user.firstName }} {{ user.lastName }} - {{ user.position }}
-                </option>
-              </select>
-              <div class="invalid-feedback" *ngIf="submitted && f['leader'].errors">
-                <div *ngIf="f.leader.errors['required']">Team leader is required</div>
-              </div>
-            </div>
-
-            <div class="modal-actions">
-              <button type="button" class="btn btn-outline" (click)="closeModal()">
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-primary" [disabled]="loading">
-                {{ loading ? 'Saving...' : (editingTeam ? 'Update Team' : 'Create Team') }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Manage Members Modal -->
-      <div class="modal-overlay" *ngIf="showMembersModal()" (click)="closeMembersModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h2>Manage Team Members - {{ selectedTeam?.name }}</h2>
-            <button class="close-btn" (click)="closeMembersModal()">
-              <span class="material-icons">close</span>
-            </button>
-          </div>
-          
-          <div class="members-management">
-            <div class="current-members">
-              <h3>Current Members ({{ selectedTeam?.members.length }})</h3>
-              <div class="member-list">
-                <div class="member-item" *ngFor="let memberId of selectedTeam?.members">
-                  <div class="member-info">
-                    <div class="member-avatar-small">{{ getMemberInitials(memberId) }}</div>
-                    <span class="member-name">{{ getMemberName(memberId) }}</span>
-                    <span class="member-role" *ngIf="selectedTeam?.leader === memberId">(Leader)</span>
-                  </div>
-                  <button 
-                    class="btn btn-sm btn-error" 
-                    *ngIf="selectedTeam?.leader !== memberId"
-                    (click)="removeMember(memberId)"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="available-members">
-              <h3>Add Members</h3>
-              <div class="member-list">
-                <div class="member-item" *ngFor="let user of getAvailableMembers()">
-                  <div class="member-info">
-                    <div class="member-avatar-small">{{ getInitials(user.firstName, user.lastName) }}</div>
-                    <span class="member-name">{{ user.firstName }} {{ user.lastName }}</span>
-                    <span class="member-position">{{ user.position }}</span>
-                  </div>
-                  <button class="btn btn-sm btn-primary" (click)="addMember(user.id)">
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './',
   styles: [`
     .teams-container {
       max-width: 1200px;
@@ -851,7 +631,7 @@ export class TeamListComponent implements OnInit {
 
   getAvailableMembers(): User[] {
     if (!this.selectedTeam) return [];
-    return this.users().filter(user => !this.selectedTeam!.members.includes(user.id));
+    return this.users().filter(user => !this.selectedTeam!.members.includes(user.userId));
   }
 
   getTotalMembers(): number {
@@ -864,22 +644,22 @@ export class TeamListComponent implements OnInit {
   }
 
   getLeaderName(leaderId: string): string {
-    const leader = this.users().find(u => u.id === leaderId);
+    const leader = this.users().find(u => u.userId === leaderId);
     return leader ? `${leader.firstName} ${leader.lastName}` : 'Unknown';
   }
 
   getLeaderInitials(leaderId: string): string {
-    const leader = this.users().find(u => u.id === leaderId);
+    const leader = this.users().find(u => u.userId === leaderId);
     return leader ? this.getInitials(leader.firstName, leader.lastName) : '?';
   }
 
   getMemberName(memberId: string): string {
-    const member = this.users().find(u => u.id === memberId);
+    const member = this.users().find(u => u.userId === memberId);
     return member ? `${member.firstName} ${member.lastName}` : 'Unknown';
   }
 
   getMemberInitials(memberId: string): string {
-    const member = this.users().find(u => u.id === memberId);
+    const member = this.users().find(u => u.userId === memberId);
     return member ? this.getInitials(member.firstName, member.lastName) : '?';
   }
 

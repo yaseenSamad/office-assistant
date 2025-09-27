@@ -8,67 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  template: `
-    <div class="login-container">
-      <div class="login-header">
-        <h1>Welcome Back</h1>
-        <p>Please sign in to your account</p>
-      </div>
-      
-      <div class="alert alert-error" *ngIf="error">
-        {{ error }}
-      </div>
-      
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label for="username" class="form-label">Username</label>
-          <input
-            type="text"
-            id="username"
-            formControlName="username"
-            class="form-control"
-            [class.is-invalid]="submitted && f['username'].errors"
-            placeholder="Enter your username"
-          />
-          <div class="invalid-feedback" *ngIf="submitted && f['username'].errors">
-            <div *ngIf="f.username.errors.required">Username is required</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            class="form-control"
-            [class.is-invalid]="submitted && f['password'].errors"
-            placeholder="Enter password"
-          />
-          <div class="invalid-feedback" *ngIf="submitted && f['password'].errors">
-            <div *ngIf="f.password.errors.required">Password is required</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
-            {{ loading ? 'Signing in...' : 'Sign In' }}
-          </button>
-        </div>
-      </form>
-      
-      <div class="login-links">
-        <div class="forgot-password">
-          <a routerLink="/auth/forgot-password">Forgot your password?</a>
-        </div>
-        
-        <div class="register-section">
-          <p>Don't have an account?</p>
-          <a routerLink="/auth/register" class="btn btn-outline">Register</a>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './login.component.html',
   styles: [`
     .login-container {
       max-width: 400px;
@@ -251,9 +191,8 @@ export class LoginComponent {
     this.loading = true;
     this.error = '';
     
-    // Convert username to email format for the existing auth service
     const credentials = {
-      email: this.getEmailFromUsername(this.loginForm.value.username),
+      username: this.loginForm.value.username,
       password: this.loginForm.value.password
     };
     
@@ -263,20 +202,12 @@ export class LoginComponent {
         this.router.navigateByUrl(returnUrl);
       },
       error: error => {
-        this.error = error.message || 'Login failed. Please check your credentials.';
+        console.log(error,'err')
+        this.error = error || 'Login failed. Please check your credentials.';
         this.loading = false;
       }
     });
   }
   
-  private getEmailFromUsername(username: string): string {
-    // Map usernames to existing demo emails
-    const usernameMap: { [key: string]: string } = {
-      'admin': 'admin@example.com',
-      'hr': 'hr@example.com',
-      'employee': 'employee@example.com'
-    };
-    
-    return usernameMap[username.toLowerCase()] || `${username}@example.com`;
-  }
+
 }
