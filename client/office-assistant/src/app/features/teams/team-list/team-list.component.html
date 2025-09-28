@@ -21,10 +21,10 @@
       <div class="stat-number">{{ getTotalMembers() }}</div>
       <div class="stat-label">Total Members</div>
     </div>
-    <div class="stat-card">
+    <!-- <div class="stat-card">
       <div class="stat-number">{{ getAverageTeamSize() }}</div>
       <div class="stat-label">Avg Team Size</div>
-    </div>
+    </div> -->
   </div>
 
   <div class="teams-content">
@@ -226,7 +226,7 @@
               </div>
               <button 
                 class="btn btn-sm btn-error" 
-                (click)="removeMember(member.userId)"
+                (click)="deleteMember(member.teamMemberId)"
                 *ngIf="canManageTeam()"
               >
                 Remove

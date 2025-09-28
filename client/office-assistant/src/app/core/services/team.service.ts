@@ -112,24 +112,7 @@ export class TeamService {
     return of(team);
   }
   
-  removeMemberFromTeam(teamId: string, userId: string): Observable<Team> {
-    const team = this.teams().find(t => t.id === teamId);
-    if (!team) {
-      return throwError(() => new Error('Team not found'));
-    }
-    
-    const updatedTeam = {
-      ...team,
-      members: team.members.filter(m => m !== userId),
-      updatedAt: new Date()
-    };
-    
-    this.teams.update(teams => 
-      teams.map(t => t.id === teamId ? updatedTeam : t)
-    );
-    
-    return of(updatedTeam);
-  }
+
   
   getTeamsByMember(userId: string): Observable<Team[]> {
     const userTeams = this.teams().filter(t => 
@@ -159,7 +142,12 @@ export class TeamService {
   }
   // Update a team
   updateTeam(teamId: string, teamData: any): Observable<any> {
-    return this.http.put<any>(`/api/teams/${teamId}`, teamData).pipe(map((res) => res));
+    return this.http.patch<any>(`/api/teams/${teamId}`, teamData).pipe(map((res) => res));
+  }
+
+  // delete team members
+  deleteTeamMember(teamMemberId: string): Observable<any> {
+    return this.http.delete<any>(`/api/teams/members/${teamMemberId}`);
   }
 
   // Delete a team

@@ -8,5 +8,7 @@ router.get('/',teamController.getAllTeams)
 router.get('/:teamId',teamController.getTeamById)
 router.post('/', teamController.createTeam);
 router.post('/:teamId/members', teamController.addTeamMembers);
-
+router.patch("/:teamId", teamController.updateTeam);
+router.delete('/:teamId',teamController.deleteTeam)
+router.delete('/members/:teamMemberId', teamController.removeTeamMember);
 module.exports = router;

@@ -43,574 +43,7 @@ interface AddMembersRequest {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './team-list.component.html',
-  styles: [`
-    .teams-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--space-4);
-    }
-
-    /* Header */
-    .teams-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-4);
-      padding-bottom: var(--space-3);
-      border-bottom: 1px solid var(--neutral-200);
-    }
-
-    .header-content h1 {
-      margin: 0 0 var(--space-1) 0;
-      color: var(--neutral-800);
-      font-size: var(--font-size-2xl);
-    }
-
-    .header-content p {
-      margin: 0;
-      color: var(--neutral-600);
-    }
-
-    .header-actions .btn {
-      display: flex;
-      align-items: center;
-      gap: var(--space-1);
-    }
-
-    /* Team Stats */
-    .team-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
-    }
-
-    .stat-card {
-      background: white;
-      padding: var(--space-3);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: var(--font-size-2xl);
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: var(--space-1);
-    }
-
-    .stat-label {
-      font-size: var(--font-size-sm);
-      color: var(--neutral-600);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Teams Grid */
-    .teams-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-      gap: var(--space-3);
-    }
-
-    .team-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      padding: var(--space-4);
-      transition: all var(--transition-fast);
-    }
-
-    .team-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-
-    .team-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-3);
-    }
-
-    .team-name {
-      margin: 0 0 var(--space-1) 0;
-      color: var(--neutral-800);
-      font-size: var(--font-size-lg);
-    }
-
-    .team-description {
-      margin: 0;
-      color: var(--neutral-600);
-      font-size: var(--font-size-sm);
-      line-height: 1.4;
-    }
-
-    .team-actions {
-      display: flex;
-      gap: var(--space-1);
-    }
-
-    .action-btn {
-      background: none;
-      border: none;
-      padding: var(--space-1);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: background-color var(--transition-fast);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .action-btn .material-icons {
-      font-size: 18px;
-    }
-
-    .edit-btn:hover {
-      background: rgba(25, 118, 210, 0.1);
-      color: var(--primary);
-    }
-
-    .delete-btn:hover {
-      background: rgba(244, 67, 54, 0.1);
-      color: var(--error);
-    }
-
-    .team-members {
-      margin-bottom: var(--space-3);
-    }
-
-    .members-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-2);
-    }
-
-    .members-count {
-      font-weight: 500;
-      color: var(--neutral-700);
-    }
-
-    .members-list {
-      display: flex;
-      align-items: center;
-      gap: var(--space-1);
-      flex-wrap: wrap;
-    }
-
-    .member-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      font-size: var(--font-size-xs);
-      position: relative;
-    }
-
-    .member-avatar.manager {
-      background: var(--error);
-    }
-
-    .member-avatar.lead {
-      background: var(--warning);
-    }
-
-    .member-role-indicator {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-    }
-
-    .more-members {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--neutral-400);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--font-size-xs);
-      font-weight: 500;
-    }
-
-    .team-meta {
-      font-size: var(--font-size-xs);
-      color: var(--neutral-600);
-      border-top: 1px solid var(--neutral-200);
-      padding-top: var(--space-2);
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: var(--space-7) var(--space-4);
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: var(--space-3);
-    }
-
-    .empty-state h3 {
-      color: var(--neutral-800);
-      margin-bottom: var(--space-2);
-    }
-
-    .empty-state p {
-      color: var(--neutral-600);
-      margin-bottom: var(--space-4);
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: var(--space-3);
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-4);
-      border-bottom: 1px solid var(--neutral-200);
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      color: var(--neutral-800);
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: var(--space-1);
-      border-radius: var(--radius-sm);
-      transition: background-color var(--transition-fast);
-    }
-
-    .close-btn:hover {
-      background: var(--neutral-100);
-    }
-
-    .modal-content form {
-      padding: var(--space-4);
-    }
-
-    .form-group {
-      margin-bottom: var(--space-3);
-    }
-
-    .form-label {
-      display: block;
-      margin-bottom: var(--space-1);
-      font-weight: 500;
-      color: var(--neutral-700);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: var(--space-2);
-      border: 1px solid var(--neutral-300);
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      transition: border-color var(--transition-fast);
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
-    }
-
-    .is-invalid {
-      border-color: var(--error);
-    }
-
-    .invalid-feedback {
-      display: block;
-      color: var(--error);
-      font-size: var(--font-size-sm);
-      margin-top: var(--space-1);
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: var(--space-2);
-      margin-top: var(--space-4);
-      padding-top: var(--space-3);
-      border-top: 1px solid var(--neutral-200);
-    }
-
-    /* Members Management */
-    .members-management {
-      padding: var(--space-4);
-    }
-
-    .member-search {
-      position: relative;
-      margin-bottom: var(--space-3);
-    }
-
-    .search-input {
-      width: 100%;
-      padding: var(--space-2) var(--space-6) var(--space-2) var(--space-2);
-      border: 1px solid var(--neutral-300);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-sm);
-    }
-
-    .search-results {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid var(--neutral-300);
-      border-top: none;
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 10;
-    }
-
-    .search-result-item {
-      padding: var(--space-2);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      transition: background-color var(--transition-fast);
-    }
-
-    .search-result-item:hover {
-      background: var(--neutral-100);
-    }
-
-    .search-result-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      font-size: var(--font-size-xs);
-    }
-
-    .search-result-info {
-      flex: 1;
-    }
-
-    .search-result-name {
-      font-weight: 500;
-      font-size: var(--font-size-sm);
-    }
-
-    .search-result-email {
-      font-size: var(--font-size-xs);
-      color: var(--neutral-600);
-    }
-
-    .selected-members {
-      margin-bottom: var(--space-3);
-    }
-
-    .selected-members h4 {
-      margin-bottom: var(--space-2);
-      color: var(--neutral-800);
-    }
-
-    .member-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
-
-    .member-tag {
-      display: flex;
-      align-items: center;
-      gap: var(--space-1);
-      background: var(--primary-light);
-      color: white;
-      padding: var(--space-1) var(--space-2);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-sm);
-    }
-
-    .member-tag-avatar {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--font-size-xs);
-      font-weight: 500;
-    }
-
-    .member-tag-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .member-tag-name {
-      font-weight: 500;
-      line-height: 1;
-    }
-
-    .member-tag-role {
-      font-size: var(--font-size-xs);
-      opacity: 0.9;
-    }
-
-    .role-select {
-      padding: var(--space-1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: var(--radius-sm);
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      font-size: var(--font-size-xs);
-      margin-left: var(--space-1);
-    }
-
-    .remove-member {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: var(--space-1);
-      border-radius: var(--radius-sm);
-      transition: background-color var(--transition-fast);
-    }
-
-    .remove-member:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .current-members h3 {
-      margin-bottom: var(--space-2);
-      color: var(--neutral-800);
-    }
-
-    .member-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .member-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-2);
-      border: 1px solid var(--neutral-200);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--space-2);
-    }
-
-    .member-info {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-
-    .member-avatar-small {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      font-size: var(--font-size-xs);
-    }
-
-    .member-name {
-      font-weight: 500;
-    }
-
-    .member-role {
-      color: var(--primary);
-      font-size: var(--font-size-sm);
-      font-weight: 500;
-      margin-left: var(--space-2);
-    }
-
-    .member-position {
-      color: var(--neutral-600);
-      font-size: var(--font-size-sm);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .teams-container {
-        padding: var(--space-2);
-      }
-
-      .teams-header {
-        flex-direction: column;
-        gap: var(--space-3);
-        align-items: stretch;
-      }
-
-      .teams-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .modal-overlay {
-        padding: var(--space-2);
-      }
-
-      .member-tags {
-        flex-direction: column;
-      }
-    }
-  `]
+  styleUrls: ['./team-list.component.scss']
 })
 export class TeamListComponent implements OnInit {
   private teamService = inject(TeamService);
@@ -680,6 +113,38 @@ export class TeamListComponent implements OnInit {
     return this.authService.isAdminOrHR();
   }
 
+  deleteMember(teamMemberId: string){
+
+      if (!this.selectedTeam) return;
+
+  if (confirm('Are you sure you want to remove this member?')) {
+    this.loading = true;
+
+    this.teamService.deleteTeamMember(teamMemberId).subscribe({
+      next: (response) => {
+        if (response.statusCode === 200) {
+          this.toastr.success('Member removed successfully');
+
+          this.selectedTeam!.members = this.selectedTeam?.members?.filter((item)=> item.teamMemberId != teamMemberId) || []
+          this.loadTeams()
+          this.loadUsers()
+        } else {
+          this.toastr.error('Failed to remove member');
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error removing member:', error);
+        this.toastr.error('Failed to remove member');
+        this.loading = false;
+      },
+    });
+  }
+
+
+
+  }
+
   openCreateModal(): void {
     this.editingTeam = null;
     this.teamForm.reset();
@@ -723,10 +188,25 @@ export class TeamListComponent implements OnInit {
     };
 
     if (this.editingTeam) {
-      // Update team logic would go here
-      this.toastr.info('Team update functionality not implemented yet');
-      this.loading = false;
-      return;
+          this.teamService.updateTeam(this.editingTeam.teamId,teamData).subscribe({
+            next: (response) => {
+              if (response.statusCode === 200) {
+                this.toastr.success('Team updated successfully');
+                  this.loadTeams();
+                  this.closeModal();
+                  this.loading = false;
+              }else{
+                  this.toastr.error('Failed to update team');
+                  this.loading = false;
+              }
+            },
+            error: (error) => {
+              console.error('Error updating team:', error);
+              this.toastr.error('Failed to update team');
+              this.loading = false;
+            }
+          })
+        return;
     }
 
     // Create new team
@@ -743,6 +223,9 @@ export class TeamListComponent implements OnInit {
             this.closeModal();
             this.loading = false;
           }
+        }else{
+            this.toastr.error('Failed to create team');
+            this.loading = false;
         }
       },
       error: (error) => {
@@ -765,6 +248,8 @@ export class TeamListComponent implements OnInit {
       next: (response) => {
         if (response.statusCode === 200) {
           this.toastr.success('Team and members added successfully');
+        }else{
+          this.toastr.error('Team created but failed to add members');
         }
         this.loadTeams();
         this.closeModal();
@@ -783,9 +268,13 @@ export class TeamListComponent implements OnInit {
   deleteTeam(team: Team): void {
     if (confirm(`Are you sure you want to delete "${team.teamName}"?`)) {
       this.teamService.deleteTeam(team.teamId).subscribe({
-        next: () => {
-          this.toastr.success('Team deleted successfully');
-          this.loadTeams();
+        next: (response) => {
+          if(response.statusCode === 200){
+            this.toastr.success('Team deleted successfully');
+            this.loadTeams();
+          }else{
+            this.toastr.error('Failed to delete team');
+          }
         },
         error: (error) => {
           console.error('Error deleting team:', error);

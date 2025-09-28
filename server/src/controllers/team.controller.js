@@ -16,6 +16,63 @@ exports.createTeam = async (req, res) => {
   }
 };
 
+exports.updateTeam = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { teamName, description } = req.body;
+
+    const team = await Team.findByPk(teamId);
+    if (!team) {
+      return errorResponse(res, "Team not found", 404);
+    }
+
+    team.teamName = teamName ?? team.teamName;
+    team.description = description ?? team.description;
+
+    await team.save();
+
+    return successResponse(res,"Team updated successfully",team);
+  } catch (err) {
+    console.error("Error updating team:", err);
+    return errorResponse(res,"Failed to update team", 500);
+  }
+};
+
+exports.deleteTeam = async (req, res) => {
+    try{
+         const { teamId } = req.params;
+        const team = await Team.findByPk(teamId);
+        if (!team) {
+        return errorResponse(res,"Team not found", 404);
+        }
+
+        await team.destroy();
+        return successResponse(res, "Team deleted successfully",null);
+    } catch (err){
+        console.error("Error deleting team:", err);
+        return errorResponse(res, "Failed to delete team", 500);
+
+    }
+}
+
+exports.removeTeamMember = async (req, res) => {
+  try {
+    const { teamMemberId } = req.params;
+
+    const member = await TeamMember.findByPk(teamMemberId);
+    if (!member) {
+      return errorResponse(res, "Team member not found", 404);
+    }
+
+    await member.destroy();
+
+    return successResponse(res,"Team member removed successfully",null);
+  } catch (err) {
+    console.error("Error removing member:", err);
+    return errorResponse(res,"Failed to remove team member", 500);
+  }
+};
+
 exports.addTeamMembers = async (req, res) => {
   try {
     const { teamId } = req.params;
