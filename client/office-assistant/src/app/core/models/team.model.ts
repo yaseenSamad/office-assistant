@@ -1,23 +1,31 @@
+import { User } from "./user.model";
+
 export interface Team {
-  id: string;
-  name: string;
+  teamId: string;
+  teamName: string;
   description?: string;
-  leader: string;
-  members: string[];
-  createdAt: Date;
-  updatedAt?: Date;
+  createdAt: string;
+  updatedAt: string;
+  members: TeamMember[];
 }
 
-export interface CreateTeamDto {
-  name: string;
-  description?: string;
-  leader: string;
-  members?: string[];
+export interface TeamMember {
+  teamMemberId: string;
+  teamId: string;
+  userId: string;
+  roleInTeam: 'Manager' | 'Lead' | 'Member';
+  joinedAt: string;
+  user?: User;
 }
 
-export interface UpdateTeamDto {
-  name?: string;
+export interface CreateTeamRequest {
+  teamName: string;
   description?: string;
-  leader?: string;
-  members?: string[];
+}
+
+export interface AddMembersRequest {
+  members: {
+    userId: string;
+    roleInTeam: 'Manager' | 'Lead' | 'Member';
+  }[];
 }

@@ -7,36 +7,7 @@ import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/user.model';
 import { ToastrService } from 'ngx-toastr';
-
-interface Team {
-  teamId: string;
-  teamName: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-  members: TeamMember[];
-}
-
-interface TeamMember {
-  teamMemberId: string;
-  teamId: string;
-  userId: string;
-  roleInTeam: 'Manager' | 'Lead' | 'Member';
-  joinedAt: string;
-  user?: User;
-}
-
-interface CreateTeamRequest {
-  teamName: string;
-  description?: string;
-}
-
-interface AddMembersRequest {
-  members: {
-    userId: string;
-    roleInTeam: 'Manager' | 'Lead' | 'Member';
-  }[];
-}
+import { AddMembersRequest, CreateTeamRequest, Team } from '../../../core/models/team.model';
 
 @Component({
   selector: 'app-team-list',
