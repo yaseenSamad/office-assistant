@@ -1,36 +1,97 @@
-<div class="container card fade-in">
-  <h2 class="mb-4">Company Policies</h2>
+<div class="container py-5">
+  <div class="card fade-in">
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="m-0">Company Policies</h1>
+        <p>Manage and access all official company documents.</p>
+      </div>
+      <div class="header-actions">
+        <button *ngIf="canEdit()" class="btn btn-primary" (click)="openPolicyModal()">
+          <span class="material-icons">add</span>
+          <span>Add Policy</span>
+        </button>
+      </div>
+    </div>
 
-  <button *ngIf="canEdit()" class="btn btn-primary mb-4">
-    + Add Policy
-  </button>
-
-  <div class="table-responsive">
-    <table class="table">
-      <thead class="bg-neutral-200">
-        <tr>
-          <th class="p-3">Title</th>
-          <th class="p-3">Description</th>
-          <th class="p-3">Updated At</th>
-          <th class="p-3">Updated By</th>
-          <th *ngIf="canEdit()" class="p-3">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let policy of policies" class="border-b">
-          <td class="p-3">
-            <a [href]="policy.documentUrl" target="_blank" class="text-primary underline">
-              {{ policy.title }}
-            </a>
-          </td>
-          <td class="p-3">{{ policy.description }}</td>
-          <td class="p-3">{{ formatDate(policy.updatedAt) }}</td>
-          <td class="p-3">{{ policy.updatedBy }}</td>
-          <td *ngIf="canEdit()" class="p-3">
-            <button class="btn btn-accent btn-sm">✏️ Edit</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Updated At</th>
+            <th>Updated By</th>
+            <th *ngIf="canEdit()">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let policy of policies">
+            <td>
+              <a [href]="policy.documentUrl" target="_blank" class="link-primary">
+                {{ policy.title }}
+              </a>
+            </td>
+            <td class="description-cell">{{ policy.description }}</td>
+            <td>{{ formatDate(policy.updatedAt) }}</td>
+            <td>{{ getUserName(policy.updatedBy) }}</td>
+            <td *ngIf="canEdit()">
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-accent" (click)="editPolicy(policy)">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deletePolicy(policy.policyId)">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!policies || policies.length === 0">
+            <td [colSpan]="canEdit() ? 5 : 4" class="empty-state-cell">
+              No policies have been added yet.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closePolicyModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="m-0">{{ editingPolicy ? 'Edit Policy' : 'Add New Policy' }}</h2>
+        <button class="close-btn" (click)="closePolicyModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <form [formGroup]="policyForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="policyTitle">Title</label>
+            <input id="policyTitle" class="form-control" formControlName="title" placeholder="e.g., Remote Work Policy" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="policyDescription">Description</label>
+            <textarea id="policyDescription" class="form-control" formControlName="description" rows="4" placeholder="A brief summary of the policy's purpose..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Upload Document</label>
+            <div class="file-input-wrapper">
+               <input type="file" id="fileUpload" (change)="onFileSelected($event)" class="file-input-hidden" />
+               <label for="fileUpload" class="btn btn-outline">
+                 <span class="material-icons">upload_file</span>
+                 <span>Choose File</span>
+               </label>
+               <span class="file-name">{{ selectedFile?.name || 'No file chosen' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" (click)="closePolicyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="policyForm.invalid">
+            {{ editingPolicy ? 'Save Changes' : 'Add Policy' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

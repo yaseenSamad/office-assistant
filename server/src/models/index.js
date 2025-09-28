@@ -5,6 +5,7 @@ const sequelize = require("../config/db");
 const User = require("./user.model")(sequelize, DataTypes);
 const Team = require("./team.model")(sequelize, DataTypes);
 const TeamMember = require("./tmembers.model")(sequelize, DataTypes);
+const Policy = require("./policy.model")(sequelize, DataTypes)
 
 // Associations
 // User -> Reporter (self-reference)
@@ -17,5 +18,13 @@ TeamMember.belongsTo(Team, { foreignKey: "teamId" });
 // User -> TeamMember (1:M)
 User.hasMany(TeamMember, { as: "teamRoles", foreignKey: "userId", onDelete: "CASCADE" });
 TeamMember.belongsTo(User, { foreignKey: "userId" });
+
+// User -> Policy (1:M)
+User.hasMany(Policy, { as: "updatedPolicies", foreignKey: "updatedBy" });
+Policy.belongsTo(User, { as: "updater", foreignKey: "updatedBy" });
+
+
+
+
 
 module.exports = { sequelize,User,Team,TeamMember  };

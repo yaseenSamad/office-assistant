@@ -7,6 +7,7 @@ const { sequelize } = require("./models");
 const userRoutes = require("./routes/user.routes");
 const authRoutes = require('./routes/auth.routes');
 const teamRoutes = require('./routes/team.routes')
+const policyRoutes = require('./routes/policy.routes')
 // const attendanceRoutes = require("./routes/attendance.routes");
 // const leaveRoutes = require("./routes/leave.routes");
 // const postRoutes = require("./routes/post.routes");
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 app.use('/auth', authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/teams",teamRoutes)
+app.use("/api/policy",policyRoutes)
 
 // app.use("/api/attendance", attendanceRoutes);
 // app.use("/api/leaves", leaveRoutes);

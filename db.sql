@@ -48,3 +48,13 @@ CREATE TABLE team_members (
     FOREIGN KEY (teamId) REFERENCES teams(teamId) ON DELETE CASCADE,
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );
+
+CREATE TABLE policies (
+  policyId CHAR(36) PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  documentUrl VARCHAR(500),
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updatedBy CHAR(36) NULL,
+  FOREIGN KEY (updatedBy) REFERENCES users(userId) ON DELETE SET NULL
+);

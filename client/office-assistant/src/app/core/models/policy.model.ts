@@ -1,15 +1,9 @@
 export interface Policy {
-  id: string;
+  policyId: string;
   title: string;
-  content: string;
-  category: string;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt?: Date;
+  description: string;
+  documentUrl: string;
+  updatedAt: string;
+  updatedBy: string;
 }
 
-export interface CreatePolicyDto {
-  title: string;
-  content: string;
-  category: string;
-}
