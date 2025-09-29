@@ -1,17 +1,16 @@
-const Policy = require('../models/policy.model')
+const {Policy,User} = require('../models')
 const {errorResponse,successResponse} = require("../utils/response")
 
 exports.createPolicy = async (req, res) => {
   try {
     const { title, description, updatedBy } = req.body;
-    const documentPath = req.file ? `/uploads/policies/${req.file.filename}` : null;
+    const documentUrl = req.file ? `${req.protocol}://${req.get("host")}/uploads/policies/${req.file.filename}` : null;
 
-    console.log(documentPath,'documentPath')
 
     const policy = await Policy.create({
       title,
       description,
-      documentPath,
+      documentUrl,
       updatedBy,
     });
     return successResponse(res, 'Policy created successfully', policy);
@@ -32,8 +31,24 @@ exports.deletePolicy = async (req, res) => {
 
 exports.getPolicies = async (req, res) => {
   try {
-    const users = await Policy.findAll();
-    return successResponse(res, "Policies fetched successfully", users);
+   const policy = await Policy.findAll({
+    include: [
+        {
+        model: User,
+        as: "updater",
+        attributes: ["firstName", "lastName"],
+        },
+    ],
+    });
+
+    const formatted = policy.map(p => ({
+    ...p.toJSON(),
+    updatedBy: p.updater 
+        ? `${p.updater.firstName} ${p.updater.lastName}` 
+        : null,
+    }));
+
+    return successResponse(res, "Policies fetched successfully", formatted);
   } catch (err) {
     return errorResponse(res, 'Failed to fetch policies', 500);
   }

@@ -27,4 +27,4 @@ Policy.belongsTo(User, { as: "updater", foreignKey: "updatedBy" });
 
 
 
-module.exports = { sequelize,User,Team,TeamMember  };
+module.exports = { sequelize,User,Team,TeamMember,Policy  };
