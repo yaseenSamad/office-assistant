@@ -1,17 +1,16 @@
 export interface Holiday {
-  id: string;
-  title: string;
-  description?: string;
-  date: Date;
-  isFloater?: boolean;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt?: Date;
+  holId: string;
+  holDate: Date | string;
+  holName: string;
+  isFloater: boolean;
+  description: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateHolidayDto {
-  title: string;
+  holName: string;
   description?: string;
-  date: Date;
+  holDate: Date | string;
   isFloater?: boolean;
 }

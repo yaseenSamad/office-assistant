@@ -6,6 +6,8 @@ const User = require("./user.model")(sequelize, DataTypes);
 const Team = require("./team.model")(sequelize, DataTypes);
 const TeamMember = require("./tmembers.model")(sequelize, DataTypes);
 const Policy = require("./policy.model")(sequelize, DataTypes)
+const Holiday = require("./holiday.model")(sequelize, DataTypes)
+
 
 // Associations
 // User -> Reporter (self-reference)
@@ -27,4 +29,4 @@ Policy.belongsTo(User, { as: "updater", foreignKey: "updatedBy" });
 
 
 
-module.exports = { sequelize,User,Team,TeamMember,Policy  };
+module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday  };
