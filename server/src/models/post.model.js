@@ -23,7 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
 
-  });
+  },{
+      tableName: "posts",
+      timestamps: true,
+    }
+);
 
   return Post;
 };

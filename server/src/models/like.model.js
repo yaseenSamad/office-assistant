@@ -18,7 +18,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+    },
 
-  });
+  },{
+      tableName: "likes",
+      timestamps: true,
+    }
+);
   return Like;
 };

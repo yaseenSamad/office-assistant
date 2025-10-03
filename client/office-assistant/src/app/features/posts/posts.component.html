@@ -20,7 +20,7 @@
         <div class="mb-2">
           <strong >{{ post.authorName }}</strong> 
           <span class="text-muted"> ({{ post.authorRole }})</span>
-          <small class="text-muted ml-2"> {{ post.timestamp | date:'short' }}</small>
+          <small class="text-muted ml-2"> {{ post.createdAt | date:'short' }}</small>
         </div>
         <button *ngIf="canDelete(post)" class="btn btn-outline btn-error btn-sm" (click)="deletePost(post)">
           Delete
@@ -46,7 +46,7 @@
           <strong>{{ comment.authorName }}</strong>: {{ comment.content }}
         </div>
         <input type="text" class="form-control" placeholder="Write a comment..." [(ngModel)]="post.newComment">
-        <button class="btn btn-primary btn-sm mt-1" (click)="addComment(post)">Comment</button>
+        <button style="margin-top: 5px;" class="btn btn-primary btn-sm mt-1" (click)="addComment(post)">Comment</button>
       </div>
 
     </div>

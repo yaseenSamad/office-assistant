@@ -1,27 +1,21 @@
+export interface Comment {
+  commentId?: string;
+  authorId: number;
+  authorName: string;
+  content: string;
+  timestamp: string;
+}
+
 export interface Post {
   id: string;
-  userId: string;
-  userName: string;
-  userRole: string;
+  authorId: number;
+  authorName: string;
+  authorRole: 'Employee' | 'HR' | 'Admin';
+  timestamp: string;
   content: string;
-  createdAt: Date;
-  updatedAt?: Date;
   likes: number;
+  likedByMe: boolean;
   comments: Comment[];
-}
-
-export interface Comment {
-  id: string;
-  userId: string;
-  userName: string;
-  content: string;
-  createdAt: Date;
-}
-
-export interface CreatePostDto {
-  content: string;
-}
-
-export interface CreateCommentDto {
-  content: string;
+  showComments?: boolean;
+  newComment?: string;
 }

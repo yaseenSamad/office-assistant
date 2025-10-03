@@ -1,27 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PostService } from '../../core/services/post.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Post } from '../../core/models/post.model';
 
-interface Comment {
-  authorId: number;
-  authorName: string;
-  content: string;
-  timestamp: string;
-}
 
-interface Post {
-  id: number;
-  authorId: number;
-  authorName: string;
-  authorRole: 'Employee' | 'HR' | 'Admin';
-  timestamp: string;
-  content: string;
-  likes: number;
-  likedByMe: boolean;
-  comments: Comment[];
-  showComments?: boolean;
-  newComment?: string;
-}
 
 @Component({
   selector: 'app-post-management',
@@ -30,7 +14,7 @@ interface Post {
   templateUrl: './posts.component.html',
   styleUrls: ['./posts.component.scss']
 })
-export class PostManagementComponent {
+export class PostManagementComponent implements OnInit {
   currentUser = {
     id: 1,
     name: 'John Doe',
@@ -38,61 +22,91 @@ export class PostManagementComponent {
   };
 
   newPostContent: string = '';
-  posts: Post[] = [
-    {
-      id: 1,
-      authorId: 2,
-      authorName: 'Alice',
-      authorRole: 'HR',
-      timestamp: new Date().toISOString(),
-      content: 'Welcome to the company! Please read all policies.',
-      likes: 5,
-      likedByMe: false,
-      comments: [
-        { authorId: 1, authorName: 'John Doe', content: 'Thanks!', timestamp: new Date().toISOString() }
-      ]
-    },
-    {
-      id: 2,
-      authorId: 1,
-      authorName: 'John Doe',
-      authorRole: 'Employee',
-      timestamp: new Date().toISOString(),
-      content: 'Looking forward to our team outing next month!',
-      likes: 3,
-      likedByMe: true,
-      comments: []
-    }
-  ];
+  posts: Post[] = [];
+
+  constructor(private postService: PostService,private authService: AuthService) {}
+
+  ngOnInit() {
+    this.loadPosts();
+  }
+
+  loadPosts() {
+    const currentUserData: any = this.authService.getUserData()
+    this.postService.getPosts(currentUserData.userId).subscribe({
+      next: (res) => {
+        if(res.statusCode == 200){
+          this.posts = res.data
+        }else{
+          this.posts = []
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load posts', err)
+      }
+    });
+  }
 
   submitPost() {
     if (!this.newPostContent.trim()) return;
-    const newPost: Post = {
-      id: Date.now(),
-      authorId: this.currentUser.id,
-      authorName: this.currentUser.name,
-      authorRole: this.currentUser.role,
-      timestamp: new Date().toISOString(),
+     const currentUserData: any = this.authService.getUserData()
+    const newPost = {
       content: this.newPostContent,
-      likes: 0,
-      likedByMe: false,
-      comments: []
+      authorId: currentUserData?.userId || null
     };
-    this.posts.unshift(newPost);
-    this.newPostContent = '';
+
+    this.postService.createPost(newPost).subscribe({
+      next: (res) => {
+        if(res.statusCode == 200){
+          this.loadPosts()
+          this.newPostContent = '';
+        }else{
+          this.posts = []
+        }
+      },
+      error: (err) => {
+        this.posts = []
+        console.error('Failed to create post', err)
+      }
+    });
   }
 
   canDelete(post: Post): boolean {
-    return this.currentUser.role === 'HR' || this.currentUser.role === 'Admin' || post.authorId === this.currentUser.id;
+    const currentUserData: any = this.authService.getUserData()
+    return this.authService.isAdminOrHR() || post.authorId === currentUserData.userId;
   }
 
   deletePost(post: Post) {
-    this.posts = this.posts.filter(p => p.id !== post.id);
+    this.postService.deletePost(post.id).subscribe({
+      next: () => {
+        this.posts = this.posts.filter(p => p.id !== post.id);
+      },
+      error: (err) => console.error('Failed to delete post', err)
+    });
   }
 
   toggleLike(post: Post) {
-    post.likedByMe = !post.likedByMe;
-    post.likes += post.likedByMe ? 1 : -1;
+    const currentUserData: any = this.authService.getUserData()
+
+      this.postService.likeOrUnlikePost({userId: currentUserData.userId ,postId: post.id  }).subscribe({
+        next: (res) => {
+          if(res.statusCode == 200){
+            if(res.message == 'LIKE_REMOVED'){
+              post.likedByMe = false;
+              post.likes -= 1;
+            }else if(res.message == 'LIKE_ADDED'){
+              post.likedByMe = true;
+              post.likes += 1;
+            }else{
+
+            }
+          }else{
+
+          }
+        },
+        error: (err) => {
+          console.error('Failed to update reaction', err)
+        }
+      });
   }
 
   toggleCommentSection(post: Post) {
@@ -101,12 +115,25 @@ export class PostManagementComponent {
 
   addComment(post: Post) {
     if (!post.newComment?.trim()) return;
-    post.comments.push({
-      authorId: this.currentUser.id,
-      authorName: this.currentUser.name,
+
+    const currentUserData: any = this.authService.getUserData()
+
+    const newComment = {
+      userId: currentUserData.userId,
       content: post.newComment,
-      timestamp: new Date().toISOString()
+      postId: post.id
+    };
+
+    this.postService.addComment(newComment).subscribe({
+      next: (res) => {
+        if(res.statusCode == 200){
+          this.loadPosts()
+          post.newComment = '';
+        }else{
+
+        }
+      },
+      error: (err) => console.error('Failed to add comment', err)
     });
-    post.newComment = '';
   }
 }

@@ -57,7 +57,7 @@ exports.getPosts = async (req, res) => {
         authorId: post.author.userId,
         authorName: `${post.author.firstName} ${post.author.lastName}`,
         likes: post.likes.length,
-        likedByMe: false, // Optionally compute based on current user
+        likedByMe: post.likes.some((item => item.userId == userId)) || false,
         authorRole: post.author.role,
         comments: post.comments.map((c) => ({
           commentId: c.commentId,
@@ -118,7 +118,7 @@ exports.toggleLike = async (req, res) => {
 
     const existingLike = await Like.findOne({ where: { postId, userId } });
     if (existingLike) {
-      await existingLike.destroy();
+      await Like.destroy({ where: { postId, userId } });
       return successResponse(res, "LIKE_REMOVED");
     }
 

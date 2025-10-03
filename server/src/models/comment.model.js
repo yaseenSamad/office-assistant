@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
 
-  });
+  },{
+      tableName: "comments",
+      timestamps: true,
+    }
+);
   return Comment;
 };
