@@ -109,3 +109,44 @@ CREATE TABLE comments (
 
 
 alter table likes add column  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+
+CREATE TABLE leave_types (
+  leaveTypeId CHAR(36) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  totalAllowed INT DEFAULT 0,
+  isHalfDayAllowed BOOLEAN DEFAULT FALSE,
+  carryForward BOOLEAN DEFAULT FALSE,
+  createdBy CHAR(36),
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (createdBy) REFERENCES users(userId) ON DELETE SET NULL
+);
+
+CREATE TABLE leave_requests (
+  leaveId CHAR(36) PRIMARY KEY,
+  userId CHAR(36) NOT NULL,
+  leaveTypeId CHAR(36) NOT NULL,
+  startDate DATE NOT NULL,
+  endDate DATE NOT NULL,
+  durationDays FLOAT NOT NULL,
+  reason TEXT,
+  status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+  declineReason TEXT,
+  approvedBy CHAR(36) NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
+  FOREIGN KEY (leaveTypeId) REFERENCES leave_types(leaveTypeId) ON DELETE CASCADE,
+  FOREIGN KEY (approvedBy) REFERENCES users(userId) ON DELETE SET NULL
+);
+
+
+
+
+alter table leave_requests modify column leaveTypeId CHAR(36) null;
+
+ALTER TABLE leave_requests
+ADD CONSTRAINT leave_requests_leaveTypeId_fk
+FOREIGN KEY (leaveTypeId) REFERENCES leave_types(leaveTypeId)
+ON DELETE SET NULL;

@@ -2,87 +2,209 @@
   <!-- Header -->
   <div style="margin: 10px;" class="d-flex justify-content-between align-items-center mb-3">
     <h2>Leave Management</h2>
-    <a [href]="policyLink" target="_blank" class="btn btn-outline">View Leave Policy</a>
+    <a [href]="" target="_blank" class="btn btn-outline">View Leave Policy</a>
   </div>
 
+  <!-- Add Leave Type -->
+  <div class="card mb-4">
+    <h3>Manage Leave Types</h3>
+    <form style="margin-block: 10px;" (ngSubmit)="addLeaveType()">
+      <div class="row" style="gap: 10px;margin-bottom: 10px;">
+        <div style="flex: 1;">
+          <label class="form-label">Leave Type Name</label>
+          <input [(ngModel)]="newLeaveType.name" name="name" class="form-control" />
+        </div>
 
+        <div  style="flex: 1;">
+          <label class="form-label">Annual No of Leave</label>
+          <input type="number" [(ngModel)]="newLeaveType.totalAllowed" name="totalAllowed" class="form-control" />
+        </div>
+
+        <div  style="display: flex;justify-content: space-between;flex-direction: column;">
+          <div style="display: flex;gap: 5px;" class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="newLeaveType.isHalfDayAllowed"
+              name="isHalfDayAllowed"
+            />
+            <label class="form-label">Allow Half Day</label>
+          </div>
+
+          <div style="display: flex;gap: 5px;" class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="newLeaveType.carryForward"
+              name="carryForward"
+            />
+            <label class="form-label">Carry Forward</label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row">
+          <button type="submit" class="btn btn-primary">Add Type</button>
+      </div>
+    </form>
+
+    <table class="table mt-3">
+      <thead>
+        <tr>
+          <th>Leave Type</th>
+          <th>Half Day Allowed</th>
+          <th>Carry Over Allowed</th>
+          <th>Annual Leaves</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let type of leaveTypes">
+          <td>{{ type.name }}</td>
+          <td>{{ type.isHalfDayAllowed ? 'Yes' : 'No' }}</td>
+          <td>{{ type.carryForward ? 'Yes' : 'No' }}</td>
+          <td>{{ type.totalAllowed }}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" (click)="deleteLeaveType(type.leaveTypeId)">
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+      <div class="table-responsive card">
+    <h3>Pending Leave Requests (Team Members)</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date(s)</th>
+          <th>Leave Type</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Requested By</th>
+          <th>Date Requested</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let leave of leaveRequests">
+          <td>{{ formatDate(leave.startDate) }} - {{ formatDate(leave.endDate) }}</td>
+          <td>{{ leave.leaveType.name }}</td>
+          <td>{{ leave.reason }}</td>
+          <td>
+            <span
+              class="badge"
+              [ngClass]="{
+                'badge-warning': leave.status === 'Pending',
+                'badge-success': leave.status === 'Approved',
+                'badge-error': leave.status === 'Rejected'
+              }"
+              >{{ leave.status }}</span
+            >
+          </td>
+          <td>{{ leave.requester ? leave.requester.firstName + ' ' + leave.requester.lastName : "-" }}</td>
+          <td>{{ formatDate(leave.requestedAt) }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-success"
+              style="margin-right: 5px;"
+              *ngIf="leave.status === 'Pending'"
+              (click)="approveLeave(leave.leaveId)"
+            >
+              Approve
+            </button>
+            <button
+              class="btn btn-sm btn-error"
+              *ngIf="leave.status === 'Pending'"
+              (click)="openRejectDialog(leave.leaveId)"
+            >
+              Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <!-- Apply Leave Form -->
   <div class="card mb-4">
     <h3>Apply Leave</h3>
-    <form>
+    <form (ngSubmit)="applyLeave()">
       <div class="row gap-3">
         <div class="col-md-3">
           <label class="form-label">Start Date</label>
-          <input type="date" class="form-control" />
+          <input type="date" class="form-control" [(ngModel)]="newLeave.startDate" name="startDate" />
         </div>
         <div class="col-md-3">
           <label class="form-label">End Date</label>
-          <input type="date" class="form-control" />
+          <input type="date" class="form-control" [(ngModel)]="newLeave.endDate" name="endDate" />
         </div>
         <div class="col-md-3">
           <label class="form-label">Duration</label>
-          <select class="form-control">
+          <select class="form-control" [(ngModel)]="newLeave.durationDays" name="durationDays">
             <option value="1">Full Day</option>
             <option value="0.5">Half Day</option>
           </select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Leave Type</label>
-          <select class="form-control">
-            <option *ngFor="let balance of leaveBalances" [value]="balance.leaveType">
-              {{ balance.leaveType }}
-            </option>
+          <select class="form-control" [(ngModel)]="newLeave.leaveTypeId" name="leaveTypeId">
+            <option *ngFor="let type of leaveTypes" [value]="type.leaveTypeId">{{ type.name }}</option>
           </select>
         </div>
       </div>
       <div class="form-group mt-3">
         <label class="form-label">Reason</label>
-        <textarea class="form-control" rows="3"></textarea>
+        <textarea class="form-control" rows="3" [(ngModel)]="newLeave.reason" name="reason"></textarea>
       </div>
       <button type="submit" class="btn btn-primary mt-2">Apply Leave</button>
     </form>
   </div>
 
-<div class="table-responsive card">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Date(s)</th>
-        <th>Leave Type</th>
-        <th>Reason</th>
-        <th>Status</th>
-        <th>Requested By</th>
-        <th>Date Requested</th>
-        <th>Approved By</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let leave of leaveRequests">
-        <td>{{ formatDate(leave.startDate) }} - {{ formatDate(leave.endDate) }} ({{ leave.durationDays }} Day)</td>
-        <td>{{ leave.leaveType }}</td>
-        <td>{{ leave.reason }}</td>
-        <td>
-          <span class="badge"
-            [ngClass]="{
-              'badge-warning': leave.status === 'Pending',
-              'badge-success': leave.status === 'Approved',
-              'badge-error': leave.status === 'Rejected'
-            }">
-            {{ leave.status }}
-          </span>
-        </td>
-        <td>{{ leave.requestedBy }}</td>
-        <td>{{ formatDate(leave.requestedAt) }}</td>
-        <td>{{ leave.approvedBy || '-' }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <!-- Leave Requests -->
+  <div class="table-responsive card">
+    <h3>My Leave History</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date(s)</th>
+          <th>Leave Type</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Date Requested</th>
+          <th>Approved By</th>
+          <th>Decline Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let leave of leaveRequests">
+          <td>{{ formatDate(leave.startDate) }} - {{ formatDate(leave.endDate) }}</td>
+          <td>{{ leave.leaveType.name }}</td>
+          <td>{{ leave.reason }}</td>
+          <td>
+            <span
+              class="badge"
+              [ngClass]="{
+                'badge-warning': leave.status === 'Pending',
+                'badge-success': leave.status === 'Approved',
+                'badge-error': leave.status === 'Rejected'
+              }"
+              >{{ leave.status }}</span
+            >
+          </td>
+          <td>{{ formatDate(leave.requestedAt) }}</td>
+          <td>{{ leave.approver ? leave.approver.firstName + ' ' + leave.approver.lastName :  '-' }}</td>
+          <td>{{leave.declineReason || '-'}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-
-    <!-- Leave Balances -->
-  <div class="row" style="gap: 10px;align-items: center;justify-content: space-between;">
+      <!-- Leave Balances -->
+  <!-- <div class="row" style="gap: 10px;align-items: center;justify-content: space-between;">
     <div class="" *ngFor="let balance of leaveBalances">
       <div style="gap: 5px;" class="card d-flex flex-column align-items-center">
         <h4>{{ balance.leaveType }}</h4>
@@ -101,8 +223,10 @@
           }
         ]"
       ></apx-chart>
-        <p class="mt-2">{{ balance.remaining }} of {{ balance.totalAllowed }} left</p>
+        <p class="mt-2">2of 10 left</p>
       </div>
     </div>
-  </div>
+  </div> -->
+
+
 </div>

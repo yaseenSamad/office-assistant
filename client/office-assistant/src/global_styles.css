@@ -306,8 +306,8 @@ button {
 .row {
   display: flex;
   flex-wrap: wrap;
-  margin-right: calc(var(--space-2) * -1);
-  margin-left: calc(var(--space-2) * -1);
+  /* margin-right: calc(var(--space-2) * -1);
+  margin-left: calc(var(--space-2) * -1); */
 }
 
 .col {

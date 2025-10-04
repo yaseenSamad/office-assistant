@@ -10,6 +10,8 @@ const Holiday = require("./holiday.model")(sequelize, DataTypes)
 const Post = require("./post.model")(sequelize, DataTypes);
 const Like = require("./like.model")(sequelize, DataTypes);
 const Comment = require("./comment.model")(sequelize, DataTypes);
+const LeaveType = require("./leaveType.model")(sequelize, DataTypes);
+const LeaveRequest = require("./leaveRequest.model")(sequelize, DataTypes);
 
 // Associations
 // User -> Reporter (self-reference)
@@ -48,4 +50,19 @@ User.hasMany(Comment, { foreignKey: "userId", as: "userComments" });
 Comment.belongsTo(User, { foreignKey: "userId", as: "author" }); // use "author" to match API
 
 
-module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment  };
+
+// User ↔ LeaveRequest
+User.hasMany(LeaveRequest, { foreignKey: "userId", as: "leaveRequests", onDelete: "CASCADE" });
+LeaveRequest.belongsTo(User, { foreignKey: "userId", as: "requester", onDelete: "CASCADE" });
+
+// LeaveType ↔ LeaveRequest
+LeaveType.hasMany(LeaveRequest, { foreignKey: "leaveTypeId", as: "requests", onDelete: "SET NULL" });
+LeaveRequest.belongsTo(LeaveType, { foreignKey: "leaveTypeId", as: "leaveType", onDelete: "SET NULL" });
+
+// Approver (User)
+User.hasMany(LeaveRequest, { foreignKey: "approvedBy", as: "approvedLeaves", onDelete: "SET NULL" });
+LeaveRequest.belongsTo(User, { foreignKey: "approvedBy", as: "approver", onDelete: "SET NULL" });
+
+
+
+module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType  };

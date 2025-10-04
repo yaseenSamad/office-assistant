@@ -11,6 +11,7 @@ const teamRoutes = require('./routes/team.routes')
 const policyRoutes = require('./routes/policy.routes')
 const holidayRoutes = require("./routes/holiday.routes");
 const postRoutes = require("./routes/post.routes");
+const leaveRoutes = require("./routes/leave.routes")
 
 // const attendanceRoutes = require("./routes/attendance.routes");
 // const leaveRoutes = require("./routes/leave.routes");
@@ -35,6 +36,7 @@ app.use("/api/teams",teamRoutes)
 app.use("/api/policies",policyRoutes)
 app.use("/api/holidays", holidayRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/leaves", leaveRoutes);
 
 // app.use("/api/attendance", attendanceRoutes);
 // app.use("/api/leaves", leaveRoutes);
