@@ -144,9 +144,14 @@ CREATE TABLE leave_requests (
 
 
 
+
+
 alter table leave_requests modify column leaveTypeId CHAR(36) null;
 
 ALTER TABLE leave_requests
 ADD CONSTRAINT leave_requests_leaveTypeId_fk
 FOREIGN KEY (leaveTypeId) REFERENCES leave_types(leaveTypeId)
 ON DELETE SET NULL;
+
+
+ALTER TABLE office_assistant.leave_requests MODIFY COLUMN durationDays float DEFAULT 1 NOT NULL;
