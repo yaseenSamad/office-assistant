@@ -1,6 +1,7 @@
 const { LeaveRequest, LeaveType, User } = require("../models");
 const { successResponse, errorResponse } = require("../utils/response");
-const { Op, fn, col } = require("sequelize");
+const { Op, fn, col, where } = require("sequelize");
+const { sendLeaveAppliedEmail,sendLeaveStatusEmail } = require("../utils/emailService");
 
 exports.createLeaveType = async (req, res) => {
   try {
@@ -115,13 +116,56 @@ exports.deleteLeaveType = async (req, res) => {
 
 exports.applyLeave = async (req, res) => {
   try {
+    const { userId } = req.params;
+
     const leave = await LeaveRequest.create({
       ...req.body,
-      userId: req.params.userId,
+      userId,
     });
-    return successResponse(res, "Leave applied successfully", leave);
+
+    const user = await User.findByPk(userId);
+    const leaveType = await LeaveType.findByPk(leave.leaveTypeId);
+
+    const conditions = {
+      [Op.or]: [
+        { role: "hr" },
+        { role: "admin" },
+      ],
+    };
+
+    if (user.reporter) {
+      conditions[Op.or].push({ userId: user.reporter });
+    }
+
+    const reportersList = await User.findAll({
+      where: conditions,
+      attributes: [
+        "primaryEmail",
+        "secondaryEmail",
+        "firstName",
+        "lastName",
+        "role",
+        "userId",
+      ],
+    });
+
+    for (const rprtr of reportersList) {
+      const recipientEmail = rprtr.primaryEmail || rprtr.secondaryEmail;
+      if (!recipientEmail) continue;
+
+      await sendLeaveAppliedEmail(recipientEmail, {
+        name: `${user.firstName} ${user.lastName}`,
+        leaveType: leaveType ? leaveType.name : "Miscellaneous Leave",
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        durationDays: leave.durationDays,
+        reason: leave.reason,
+      });
+    }
+
+    return successResponse(res, "Leave applied successfully and email(s) sent", leave);
   } catch (err) {
-    console.log(err)
+    console.error("Error in applyLeave:", err);
     return errorResponse(res, "Failed to apply leave");
   }
 };
@@ -183,13 +227,49 @@ exports.getPendingApprovals = async (req, res) => {
 };
 
 exports.approveLeave = async (req, res) => {
-  const { leaveId,userId } = req.params;
+  const { leaveId, userId } = req.params;
   const { status, declineReason } = req.body;
 
-  await LeaveRequest.update(
-    { status, declineReason, approvedBy: userId },
-    { where: { leaveId: leaveId } }
-  );
+  try {
+    await LeaveRequest.update(
+      { status, declineReason, approvedBy: userId },
+      { where: { leaveId } }
+    );
 
-  return successResponse(res, "Leave status updated");
+    const leave = await LeaveRequest.findByPk(leaveId, {
+      include: [
+        { model: User, as: "requester", attributes: ["firstName", "lastName", "primaryEmail", "secondaryEmail"] },
+        { model: User, as: "approver", attributes: ["firstName", "lastName", "primaryEmail", "secondaryEmail"] },
+        { model: LeaveType, as: "leaveType", attributes: ["name"] },
+      ],
+    });
+
+    if (!leave) {
+      return errorResponse(res, "Leave record not found");
+    }
+
+    const employee = leave.requester;
+    const approver = leave.approver
+    const recipientEmail = employee?.primaryEmail || employee?.secondaryEmail;
+
+    if (!recipientEmail) {
+      console.warn("No email found for user:", employee?.userId);
+      return successResponse(res, "Leave status updated, but no email sent (no email found)");
+    }
+
+    await sendLeaveStatusEmail(recipientEmail, {
+      name: `${employee.firstName} ${employee.lastName}`,
+      leaveType: leave.leaveType?.name || "Leave Request",
+      startDate: leave.startDate,
+      endDate: leave.endDate,
+      status: leave.status,
+      declineReason,
+      approvedBy: `${approver.firstName} ${approver.lastName}`,
+    });
+
+    return successResponse(res, "Leave status updated and notification sent");
+  } catch (err) {
+    console.error("Error approving leave:", err);
+    return errorResponse(res, "Failed to update leave status");
+  }
 };

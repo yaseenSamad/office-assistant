@@ -45,7 +45,7 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="!policies || policies.length === 0">
+          <tr *ngIf="!policies() || policies().length === 0">
             <td [colSpan]="canEdit() ? 5 : 4" class="empty-state-cell">
               No policies have been added yet.
             </td>
