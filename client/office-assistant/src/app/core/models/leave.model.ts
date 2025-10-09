@@ -4,34 +4,32 @@ export enum LeaveStatus {
   REJECTED = 'REJECTED'
 }
 
-export enum LeaveType {
-  ANNUAL = 'ANNUAL',
-  SICK = 'SICK',
-  PERSONAL = 'PERSONAL',
-  UNPAID = 'UNPAID',
-  OTHER = 'OTHER'
+
+export interface LeaveRequest {
+  leaveId: string;
+  startDate: string;
+  endDate: string;
+  durationDays: number;
+  leaveType: string;
+  reason: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  requestedBy: string;
+  requestedAt: string;
+  approvedBy: string | null;
+  declineReason?: string;
 }
 
-export interface Leave {
-  id: string;
-  userId: string;
-  type: LeaveType;
-  startDate: Date;
-  endDate: Date;
-  reason?: string;
-  status: LeaveStatus;
-  approvedBy?: string;
-  approvedAt?: Date;
-  createdAt: Date;
+export interface LeaveType {
+  leaveTypeId?: string;
+  name: string;
+  isHalfDayAllowed: boolean;
+  carryForward: boolean;
+  totalAllowed: number;
 }
 
-export interface CreateLeaveDto {
-  type: LeaveType;
-  startDate: Date;
-  endDate: Date;
-  reason?: string;
-}
-
-export interface UpdateLeaveStatusDto {
-  status: LeaveStatus;
+export interface LeaveBalance {
+  leaveType: string;
+  totalAllowed: number;
+  used: number;
+  remaining: number;
 }

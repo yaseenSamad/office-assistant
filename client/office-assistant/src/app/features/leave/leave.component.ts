@@ -5,37 +5,9 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import moment from 'moment';
 import { LeaveService } from '../../core/services/leave.service';
 import { AuthService } from '../../core/services/auth.service';
-import { LeaveStatus } from '../../core/models/leave.model';
+import { LeaveBalance, LeaveRequest, LeaveStatus, LeaveType } from '../../core/models/leave.model';
 import { ToastrService } from 'ngx-toastr';
 
-interface LeaveRequest {
-  leaveId: string;
-  startDate: string;
-  endDate: string;
-  durationDays: number;
-  leaveType: string;
-  reason: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
-  requestedBy: string;
-  requestedAt: string;
-  approvedBy: string | null;
-  declineReason?: string;
-}
-
-interface LeaveType {
-  leaveTypeId?: string;
-  name: string;
-  isHalfDayAllowed: boolean;
-  carryForward: boolean;
-  totalAllowed: number;
-}
-
-interface LeaveBalance {
-  leaveType: string;
-  totalAllowed: number;
-  used: number;
-  remaining: number;
-}
 
 @Component({
   selector: 'app-leave',
