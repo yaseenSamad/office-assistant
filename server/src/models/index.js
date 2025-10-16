@@ -12,6 +12,7 @@ const Like = require("./like.model")(sequelize, DataTypes);
 const Comment = require("./comment.model")(sequelize, DataTypes);
 const LeaveType = require("./leaveType.model")(sequelize, DataTypes);
 const LeaveRequest = require("./leaveRequest.model")(sequelize, DataTypes);
+const Attendance = require("./attendance.model")(sequelize, DataTypes);
 
 // Associations
 // User -> Reporter (self-reference)
@@ -63,6 +64,10 @@ LeaveRequest.belongsTo(LeaveType, { foreignKey: "leaveTypeId", as: "leaveType", 
 User.hasMany(LeaveRequest, { foreignKey: "approvedBy", as: "approvedLeaves", onDelete: "SET NULL" });
 LeaveRequest.belongsTo(User, { foreignKey: "approvedBy", as: "approver", onDelete: "SET NULL" });
 
+User.hasMany(Attendance, { foreignKey: "userId",as: "attendances",onDelete: "CASCADE",onUpdate: "CASCADE"});
+
+Attendance.belongsTo(User, { foreignKey: "userId",as: "user",onDelete: "CASCADE",onUpdate: "CASCADE"});
 
 
-module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType  };
+
+module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType,Attendance  };
