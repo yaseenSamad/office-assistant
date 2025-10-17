@@ -55,17 +55,13 @@ exports.getTodayAttendance = async (req, res) => {
       });
     }
 
-    return successResponse(res, "Today's attendance fetched successfully", {
-      todayStatus,
-    });
+    return successResponse(res, "Today's attendance fetched successfully", todayStatus);
   } catch (err) {
     console.error("Error in getTodayAttendance:", err);
     return errorResponse(res, "Failed to fetch today's attendance");
   }
 };
 
-
-// exports.getAttendanceDetails = async (req, res) => {
 //   try {
 //     const { userId, startDate, endDate, currentDate } = req.body;
 
@@ -104,8 +100,6 @@ exports.clockAction = async (req, res) => {
   try {
     const { userId, actionType , currentDate , currentTime} = req.body;
 
-    console.log(currentTime,'currentTime')
-
     if (!userId || !actionType || !currentDate || !currentTime) {
       return errorResponse(res, "userId,currentDate,actionType,currentTime are required");
     }
@@ -119,12 +113,6 @@ exports.clockAction = async (req, res) => {
         return errorResponse(res, "Already clocked in for today");
       }
 
-      console.log({
-        userId,
-        attendanceDate: currentDate,
-        clockInTime: currentTime,
-        active: true,
-      },'hh')
 
       attendance = await Attendance.create({
         userId,
@@ -149,7 +137,7 @@ exports.clockAction = async (req, res) => {
       await attendance.update({
         clockOutTime: currentTime,
         active: false,
-        isManualOut: false,
+        isManualOut: true,
       });
 
       return successResponse(res, "Clocked out successfully", attendance);

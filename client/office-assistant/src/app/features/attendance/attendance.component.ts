@@ -37,16 +37,12 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   constructor(private authService: AuthService,private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
-    // Default filter: previous month start → today
     this.startDate = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
     this.endDate = this.today;
 
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
-
-    // Load today's status first
     this.loadTodayStatus();
-    // Then load list
     this.loadAttendanceList();
   }
 
@@ -58,9 +54,6 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     this.currentTime = moment().format('HH:mm:ss');
   }
 
-  // =======================================================
-  // 📅 Fetch attendance list based on filters
-  // =======================================================
   loadAttendanceList(): void {
     const currentUserData: any = this.authService.getUserData()
     const payload = {
@@ -71,45 +64,69 @@ export class AttendanceComponent implements OnInit, OnDestroy {
 
     this.attendanceService.getAttendance(payload).subscribe({
       next: (res) => {
-        this.records = res.data.attendanceHistory || [];
+        if(res.statusCode == 200){
+            this.records = (res.data || []).map((rec: any) => {
+            // Compute effective hours if both times are available
+            if (rec.clockInTime && rec.clockOutTime) {
+              const start = moment(rec.clockInTime);
+              const end = moment(rec.clockOutTime);
+              const duration = moment.duration(end.diff(start));
+              const hours = Math.floor(duration.asHours());
+              const minutes = Math.floor(duration.minutes());
+              rec.effectiveHours = `${hours}h ${minutes}m`;
+            } else {
+              rec.effectiveHours = '-';
+            }
+            return rec;
+          });
+
+        }else{
+          this.records = [];
+        }
       },
-      error: (err) => console.error('Error loading attendance list:', err),
+      error: (err) => {
+        this.records = [];
+        console.error('Error loading attendance list:', err)
+      },
     });
   }
 
-  // =======================================================
-  // 🕒 Fetch today's attendance
-  // =======================================================
   loadTodayStatus(): void {
     const currentUserData: any = this.authService.getUserData()
     this.attendanceService.getTodayAttendance(currentUserData.userId).subscribe({
       next: (res) => {
-        const todayStatus = res.data?.todayStatus;
+        if(res.statusCode == 200){
+          const todayStatus = res.data;
 
-        if (todayStatus && todayStatus.active) {
-          const clockInDate = moment(todayStatus.attendanceDate).format('YYYY-MM-DD');
+          if (todayStatus && todayStatus.active) {
+            const clockInDate = moment(todayStatus.attendanceDate).format('YYYY-MM-DD');
 
-          if (clockInDate !== this.today) {
-            // System clock-out scenario (yesterday left open)
+            if (clockInDate !== this.today) {
+              this.clockStatus = 'clocked-out';
+              this.workingHours = '0h 0m';
+            } else {
+              this.clockStatus = 'clocked-in';
+              this.clockInStartTime = moment(todayStatus.clockInTime);
+              this.startWorkingHoursCounter();
+            }
+          } else {
             this.clockStatus = 'clocked-out';
             this.workingHours = '0h 0m';
-          } else {
-            this.clockStatus = 'clocked-in';
-            this.clockInStartTime = moment(todayStatus.clockInTime);
-            this.startWorkingHoursCounter();
           }
-        } else {
-          this.clockStatus = 'clocked-out';
-          this.workingHours = '0h 0m';
+        }else{
+            this.clockStatus = 'clocked-out';
+            this.workingHours = '0h 0m';
         }
+ 
       },
-      error: (err) => console.error('Error loading today status:', err),
+      error: (err) =>{ 
+        this.clockStatus = 'clocked-out';
+        this.workingHours = '0h 0m';
+        console.error('Error loading today status:', err)
+      },
     });
   }
 
-  // =======================================================
-  // 🟢🔴 Handle Clock In / Clock Out actions
-  // =======================================================
   toggleClock(): void {
     const actionType = this.clockStatus === 'clocked-out' ? 'clock-in' : 'clock-out';
     const currentUserData: any = this.authService.getUserData()
@@ -118,26 +135,29 @@ export class AttendanceComponent implements OnInit, OnDestroy {
 
     this.attendanceService.createAttendance({ userId: currentUserData.userId, actionType , currentDate: currentDate , currentTime: currentTime }).subscribe({
       next: (res) => {
-        const record = res.data;
+        if(res.statusCode == 200){
+            const record = res.data;
 
-        if (actionType === 'clock-in') {
-          this.clockStatus = 'clocked-in';
-          this.clockInStartTime = moment(record.clockInTime);
-          this.startWorkingHoursCounter();
-        } else {
-          this.clockStatus = 'clocked-out';
-          this.timerSub?.unsubscribe();
-          this.workingHours = this.calculateWorkedTime(this.clockInStartTime!, moment());
-          this.loadAttendanceList(); // Refresh list after clock-out
+            if (actionType === 'clock-in') {
+              this.clockStatus = 'clocked-in';
+              this.clockInStartTime = moment(record.clockInTime);
+              this.startWorkingHoursCounter();
+            } else {
+              this.clockStatus = 'clocked-out';
+              this.timerSub?.unsubscribe();
+              this.workingHours = this.calculateWorkedTime(this.clockInStartTime!, moment());
+              this.loadAttendanceList();
+            }
+        }else{
+
         }
       },
-      error: (err) => console.error('Clock action failed:', err),
+      error: (err) => {
+        console.error('Clock action failed:', err)
+      },
     });
   }
 
-  // =======================================================
-  // ⏱️ Working hours counter
-  // =======================================================
   startWorkingHoursCounter(): void {
     this.timerSub?.unsubscribe();
     this.timerSub = interval(60000).subscribe(() => {
@@ -147,7 +167,6 @@ export class AttendanceComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Update immediately once when clocked in
     if (this.clockInStartTime) {
       this.workingHours = this.calculateWorkedTime(this.clockInStartTime, moment());
     }

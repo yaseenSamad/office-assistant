@@ -155,3 +155,21 @@ ON DELETE SET NULL;
 
 
 ALTER TABLE office_assistant.leave_requests MODIFY COLUMN durationDays float DEFAULT 1 NOT NULL;
+
+
+-- office_assistant.attendances definition
+
+CREATE TABLE `attendances` (
+  `attendanceId` char(36) NOT NULL,
+  `userId` char(36) NOT NULL,
+  `attendanceDate` date NOT NULL,
+  `clockInTime` timestamp NOT NULL,
+  `clockOutTime` timestamp NULL DEFAULT NULL,
+  `isManualOut` tinyint(1) DEFAULT NULL,
+  `active` tinyint(1) DEFAULT '1',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`attendanceId`),
+  KEY `fk_user_attendance` (`userId`),
+  CONSTRAINT `fk_user_attendance` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
