@@ -857,39 +857,3 @@ export class DashboardComponent implements OnInit {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 }
-    }
-  }
-
-  likePost(post: BlogPost): void {
-    post.likes++;
-  }
-
-  getDaysUntil(holiday: Holiday): string {
-    const today = new Date();
-    const holidayDate = new Date(holiday.date);
-    const diffTime = holidayDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays > 0) return `${diffDays} days to go`;
-    return 'Past';
-  }
-
-  getInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  }
-
-  getTimeAgo(date: Date): string {
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours === 1) return '1 hour ago';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return '1 day ago';
-    return `${diffInDays} days ago`;
-  }
-}
