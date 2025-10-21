@@ -19,14 +19,14 @@
         <div class="holiday-content">
           <div class="holiday-icon">🎉</div>
           <div class="holiday-details">
-            <h3>{{ nextHoliday.title }}</h3>
+            <h3>{{ nextHoliday.holName }}</h3>
             <p>{{ nextHoliday.daysLeft }} days to go</p>
             <span class="holiday-badge" *ngIf="nextHoliday.isFloater">Floater</span>
           </div>
         </div>
         <div class="holiday-date">
-          <span class="date-day">{{ nextHoliday.date | date:'dd' }}</span>
-          <span class="date-month">{{ nextHoliday.date | date:'MMM' }}</span>
+          <span class="date-day">{{ nextHoliday.holDate | date:'dd' }}</span>
+          <span class="date-month">{{ nextHoliday.holDate | date:'MMM' }}</span>
         </div>
       </div>
 
@@ -44,9 +44,10 @@
               class="btn clock-btn" 
               [class.btn-success]="clockStatus === 'clocked-out'"
               [class.btn-error]="clockStatus === 'clocked-in'"
+              [disabled]="loading"
               (click)="toggleClock()"
             >
-              {{ clockStatus === 'clocked-out' ? 'Clock In' : 'Clock Out' }}
+              {{ loading ? 'Processing...' : (clockStatus === 'clocked-out' ? 'Clock In' : 'Clock Out') }}
             </button>
             <div class="work-hours" *ngIf="clockStatus === 'clocked-in'">
               Working: {{ workingHours }}
@@ -106,23 +107,27 @@
             <div class="blog-posts">
               <div class="blog-post" *ngFor="let post of blogPosts">
                 <div class="post-header">
-                  <div class="post-avatar">{{ getInitials(post.author) }}</div>
+                  <div class="post-avatar">{{ getInitials(post.authorName) }}</div>
                   <div class="post-meta">
-                    <h4>{{ post.author }}</h4>
-                    <span class="post-time">{{ getTimeAgo(post.timestamp) }}</span>
+                    <h4>{{ post.authorName }}</h4>
+                    <span class="post-time">{{ getTimeAgo(post.createdAt) }}</span>
                   </div>
                 </div>
                 <div class="post-content">{{ post.content }}</div>
                 <div class="post-actions">
                   <button class="post-action" (click)="likePost(post)">
-                    <span class="action-icon">👍</span>
+                    <span class="action-icon" [style.color]="post.likedByMe ? '#1976D2' : ''">👍</span>
                     {{ post.likes }}
                   </button>
                   <button class="post-action">
                     <span class="action-icon">💬</span>
-                    {{ post.comments }}
+                    {{ post.comments?.length || 0 }}
                   </button>
                 </div>
+              </div>
+              <div class="no-posts" *ngIf="blogPosts.length === 0">
+                <span class="material-icons">forum</span>
+                <p>No posts yet. Be the first to share something!</p>
               </div>
             </div>
           </div>
@@ -234,14 +239,18 @@
             <div class="upcoming-holidays">
               <div class="holiday-item" *ngFor="let holiday of upcomingHolidays">
                 <div class="holiday-date-small">
-                  <span class="date-day">{{ holiday.date | date:'dd' }}</span>
-                  <span class="date-month">{{ holiday.date | date:'MMM' }}</span>
+                  <span class="date-day">{{ holiday.holDate | date:'dd' }}</span>
+                  <span class="date-month">{{ holiday.holDate | date:'MMM' }}</span>
                 </div>
                 <div class="holiday-info">
-                  <h4>{{ holiday.title }}</h4>
+                  <h4>{{ holiday.holName }}</h4>
                   <p>{{ holiday.daysLeft }} days left</p>
                   <span class="holiday-badge" *ngIf="holiday.isFloater">Floater</span>
                 </div>
+              </div>
+              <div class="no-holidays" *ngIf="upcomingHolidays.length === 0">
+                <span class="material-icons">event</span>
+                <p>No upcoming holidays</p>
               </div>
             </div>
           </div>

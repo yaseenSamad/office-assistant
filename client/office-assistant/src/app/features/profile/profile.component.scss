@@ -1,0 +1,456 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+/* Profile Header */
+.profile-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-info h1 {
+  margin: 0 0 var(--space-1) 0;
+  font-size: var(--font-size-2xl);
+}
+
+.profile-title {
+  font-size: var(--font-size-lg);
+  margin: 0 0 var(--space-1) 0;
+  opacity: 0.9;
+}
+
+.profile-department {
+  font-size: var(--font-size-md);
+  margin: 0 0 var(--space-3) 0;
+  opacity: 0.8;
+}
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.meta-item .material-icons {
+  font-size: 18px;
+}
+
+/* Profile Navigation */
+.profile-nav {
+  display: flex;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--neutral-600);
+  font-weight: 500;
+}
+
+.nav-tab:hover {
+  background: var(--neutral-100);
+}
+
+.nav-tab.active {
+  background: var(--primary);
+  color: white;
+}
+
+.nav-tab .material-icons {
+  font-size: 20px;
+}
+
+/* Tab Content */
+.tab-content {
+  animation: fadeIn var(--transition-normal);
+}
+
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.card-header h2 {
+  margin: 0;
+  color: var(--neutral-800);
+}
+
+/* Profile Form */
+.profile-form {
+  padding: var(--space-4);
+}
+
+.form-section {
+  margin-bottom: var(--space-5);
+}
+
+.form-section h3 {
+  margin: 0 0 var(--space-3) 0;
+  color: var(--neutral-700);
+  font-size: var(--font-size-lg);
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: var(--space-1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.form-group {
+  margin-bottom: var(--space-3);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-weight: 500;
+  color: var(--neutral-700);
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  transition: border-color var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.checkbox-label {
+  font-weight: 500;
+  color: var(--neutral-700);
+  cursor: pointer;
+}
+
+.form-help {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--neutral-600);
+  margin-top: var(--space-1);
+}
+
+/* Education & Experience Lists */
+.education-list,
+.experience-list {
+  padding: var(--space-4);
+}
+
+.education-item,
+.experience-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-3);
+  transition: all var(--transition-fast);
+}
+
+.education-item:hover,
+.experience-item:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--primary-light);
+}
+
+.education-icon,
+.experience-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.education-content,
+.experience-content {
+  flex: 1;
+}
+
+.education-header,
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-2);
+}
+
+.education-header h3,
+.experience-header h3 {
+  margin: 0;
+  color: var(--neutral-800);
+  font-size: var(--font-size-lg);
+}
+
+.education-actions,
+.experience-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.current-badge {
+  background: var(--success);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-right: var(--space-2);
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  color: var(--neutral-600);
+}
+
+.action-btn:hover {
+  background: var(--neutral-100);
+  color: var(--primary);
+}
+
+.action-btn.delete:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+}
+
+.education-institution,
+.experience-company {
+  font-weight: 500;
+  color: var(--primary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.education-field,
+.education-duration,
+.education-grade,
+.experience-location,
+.experience-duration {
+  color: var(--neutral-600);
+  font-size: var(--font-size-sm);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.duration-text {
+  font-style: italic;
+  color: var(--neutral-500);
+}
+
+.education-description,
+.experience-description {
+  color: var(--neutral-700);
+  line-height: 1.5;
+  margin: var(--space-2) 0;
+}
+
+.experience-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.skill-tag {
+  background: var(--accent-light);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--space-7) var(--space-4);
+  color: var(--neutral-600);
+}
+
+.empty-state .material-icons {
+  font-size: 4rem;
+  margin-bottom: var(--space-3);
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin-bottom: var(--space-2);
+  color: var(--neutral-800);
+}
+
+.empty-state p {
+  margin-bottom: var(--space-4);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-3);
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--neutral-800);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.close-btn:hover {
+  background: var(--neutral-100);
+}
+
+.modal-body {
+  padding: var(--space-4);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--neutral-200);
+  background: var(--neutral-100);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: var(--space-2);
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-nav {
+    flex-direction: column;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-meta {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .education-header,
+  .experience-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .modal-overlay {
+    padding: var(--space-2);
+  }
+}

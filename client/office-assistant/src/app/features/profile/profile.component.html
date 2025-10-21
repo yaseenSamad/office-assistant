@@ -1,0 +1,396 @@
+<div class="profile-container">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar">
+      {{ getInitials(user()?.firstName, user()?.lastName) }}
+    </div>
+    <div class="profile-info">
+      <h1>{{ user()?.firstName }} {{ user()?.lastName }}</h1>
+      <p class="profile-title">{{ user()?.designation }}</p>
+      <p class="profile-department">{{ user()?.department?.itemName }}</p>
+      <div class="profile-meta">
+        <span class="meta-item">
+          <span class="material-icons">email</span>
+          {{ user()?.primaryEmail }}
+        </span>
+        <span class="meta-item">
+          <span class="material-icons">phone</span>
+          {{ user()?.primaryPhone }}
+        </span>
+        <span class="meta-item">
+          <span class="material-icons">badge</span>
+          {{ user()?.officeId }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Navigation -->
+  <div class="profile-nav">
+    <button 
+      class="nav-tab" 
+      [class.active]="activeTab === 'personal'"
+      (click)="setActiveTab('personal')"
+    >
+      <span class="material-icons">person</span>
+      Personal Info
+    </button>
+    <button 
+      class="nav-tab" 
+      [class.active]="activeTab === 'education'"
+      (click)="setActiveTab('education')"
+    >
+      <span class="material-icons">school</span>
+      Education
+    </button>
+    <button 
+      class="nav-tab" 
+      [class.active]="activeTab === 'experience'"
+      (click)="setActiveTab('experience')"
+    >
+      <span class="material-icons">work</span>
+      Experience
+    </button>
+  </div>
+
+  <!-- Personal Information Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'personal'">
+    <div class="card">
+      <div class="card-header">
+        <h2>Personal Information</h2>
+        <button class="btn btn-primary" (click)="updateProfile()" [disabled]="loading">
+          {{ loading ? 'Updating...' : 'Update Profile' }}
+        </button>
+      </div>
+      
+      <form [formGroup]="profileForm" class="profile-form">
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name *</label>
+              <input type="text" formControlName="firstName" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name *</label>
+              <input type="text" formControlName="lastName" class="form-control" />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Date of Birth *</label>
+              <input type="date" formControlName="dob" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender *</label>
+              <select formControlName="gender" class="form-control">
+                <option value="">Select Gender</option>
+                <option *ngFor="let gender of genders" [value]="gender">{{ gender }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Blood Group *</label>
+              <select formControlName="bloodGroup" class="form-control">
+                <option value="">Select Blood Group</option>
+                <option *ngFor="let bg of bloodGroups" [value]="bg">{{ bg }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Marital Status *</label>
+              <select formControlName="maritalStatus" class="form-control">
+                <option value="">Select Status</option>
+                <option *ngFor="let status of maritalStatuses" [value]="status">{{ status }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nationality *</label>
+            <input type="text" formControlName="nationality" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Contact Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Primary Email *</label>
+              <input type="email" formControlName="primaryEmail" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secondary Email</label>
+              <input type="email" formControlName="secondaryEmail" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Primary Phone *</label>
+              <input type="tel" formControlName="primaryPhone" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secondary Phone</label>
+              <input type="tel" formControlName="secondaryPhone" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">LinkedIn Profile</label>
+            <input type="url" formControlName="linkedin" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Address Information</h3>
+          <div class="form-group">
+            <label class="form-label">Permanent Address *</label>
+            <textarea formControlName="permanentAddress" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temporary Address</label>
+            <textarea formControlName="temporaryAddress" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Professional Information</h3>
+          <div class="form-group">
+            <label class="form-label">Designation *</label>
+            <input type="text" formControlName="designation" class="form-control" />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Education Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'education'">
+    <div class="card">
+      <div class="card-header">
+        <h2>Education</h2>
+        <button class="btn btn-primary" (click)="openEducationModal()">
+          <span class="material-icons">add</span>
+          Add Education
+        </button>
+      </div>
+
+      <div class="education-list" *ngIf="educationList.length > 0">
+        <div class="education-item" *ngFor="let education of educationList">
+          <div class="education-icon">
+            <span class="material-icons">school</span>
+          </div>
+          <div class="education-content">
+            <div class="education-header">
+              <h3>{{ education.degree }}</h3>
+              <div class="education-actions">
+                <button class="action-btn" (click)="openEducationModal(education)">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="action-btn delete" (click)="deleteEducation(education)">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </div>
+            <p class="education-institution">{{ education.institution }}</p>
+            <p class="education-field">{{ education.fieldOfStudy }}</p>
+            <p class="education-duration">
+              {{ formatDate(education.startDate) }} - {{ formatDate(education.endDate) }}
+            </p>
+            <p class="education-grade" *ngIf="education.grade">Grade: {{ education.grade }}</p>
+            <p class="education-description" *ngIf="education.description">{{ education.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="educationList.length === 0">
+        <span class="material-icons">school</span>
+        <h3>No Education Records</h3>
+        <p>Add your educational background to complete your profile.</p>
+        <button class="btn btn-primary" (click)="openEducationModal()">Add Education</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experience Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'experience'">
+    <div class="card">
+      <div class="card-header">
+        <h2>Work Experience</h2>
+        <button class="btn btn-primary" (click)="openExperienceModal()">
+          <span class="material-icons">add</span>
+          Add Experience
+        </button>
+      </div>
+
+      <div class="experience-list" *ngIf="experienceList.length > 0">
+        <div class="experience-item" *ngFor="let experience of experienceList">
+          <div class="experience-icon">
+            <span class="material-icons">work</span>
+          </div>
+          <div class="experience-content">
+            <div class="experience-header">
+              <div>
+                <h3>{{ experience.jobTitle }}</h3>
+                <p class="experience-company">{{ experience.company }}</p>
+              </div>
+              <div class="experience-actions">
+                <span class="current-badge" *ngIf="experience.current">Current</span>
+                <button class="action-btn" (click)="openExperienceModal(experience)">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="action-btn delete" (click)="deleteExperience(experience)">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </div>
+            <p class="experience-location">{{ experience.location }}</p>
+            <p class="experience-duration">
+              {{ formatDate(experience.startDate) }} - 
+              {{ experience.current ? 'Present' : formatDate(experience.endDate) }}
+              <span class="duration-text">
+                ({{ calculateDuration(experience.startDate, experience.endDate, experience.current) }})
+              </span>
+            </p>
+            <p class="experience-description">{{ experience.description }}</p>
+            <div class="experience-skills" *ngIf="experience.skills && experience.skills.length > 0">
+              <span class="skill-tag" *ngFor="let skill of experience.skills">{{ skill }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="experienceList.length === 0">
+        <span class="material-icons">work</span>
+        <h3>No Work Experience</h3>
+        <p>Add your work experience to showcase your professional journey.</p>
+        <button class="btn btn-primary" (click)="openExperienceModal()">Add Experience</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Education Modal -->
+<div class="modal-overlay" *ngIf="showEducationModal" (click)="closeEducationModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingEducation ? 'Edit Education' : 'Add Education' }}</h2>
+      <button class="close-btn" (click)="closeEducationModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <form [formGroup]="educationForm" (ngSubmit)="saveEducation()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Degree *</label>
+          <input type="text" formControlName="degree" class="form-control" placeholder="e.g., Bachelor of Technology" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Institution *</label>
+          <input type="text" formControlName="institution" class="form-control" placeholder="e.g., Indian Institute of Technology" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Field of Study *</label>
+          <input type="text" formControlName="fieldOfStudy" class="form-control" placeholder="e.g., Computer Science" />
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Date *</label>
+            <input type="date" formControlName="startDate" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Date *</label>
+            <input type="date" formControlName="endDate" class="form-control" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Grade/CGPA</label>
+          <input type="text" formControlName="grade" class="form-control" placeholder="e.g., 8.5 CGPA or First Class" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea formControlName="description" class="form-control" rows="3" placeholder="Additional details about your education..."></textarea>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" (click)="closeEducationModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ editingEducation ? 'Update' : 'Add' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Experience Modal -->
+<div class="modal-overlay" *ngIf="showExperienceModal" (click)="closeExperienceModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingExperience ? 'Edit Experience' : 'Add Experience' }}</h2>
+      <button class="close-btn" (click)="closeExperienceModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <form [formGroup]="experienceForm" (ngSubmit)="saveExperience()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Job Title *</label>
+          <input type="text" formControlName="jobTitle" class="form-control" placeholder="e.g., Software Developer" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Company *</label>
+          <input type="text" formControlName="company" class="form-control" placeholder="e.g., Tech Solutions Inc." />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Location *</label>
+          <input type="text" formControlName="location" class="form-control" placeholder="e.g., Bangalore, India" />
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Date *</label>
+            <input type="date" formControlName="startDate" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Date</label>
+            <input type="date" formControlName="endDate" class="form-control" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" formControlName="current" (change)="onCurrentJobChange()" class="form-checkbox" />
+            <label class="checkbox-label">I currently work here</label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea formControlName="description" class="form-control" rows="4" placeholder="Describe your role and responsibilities..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Skills</label>
+          <input type="text" formControlName="skills" class="form-control" placeholder="e.g., Angular, Node.js, TypeScript (comma separated)" />
+          <small class="form-help">Enter skills separated by commas</small>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" (click)="closeExperienceModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ editingExperience ? 'Update' : 'Add' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -60,6 +60,10 @@ export const APP_ROUTES: Routes = [
         path: 'employees',
         loadChildren: () => import('./features/employees/employees.routes').then(m => m.EMPLOYEES_ROUTES)
       },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)
+      },
       // {
       //   path: 'profile',
       //   loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)

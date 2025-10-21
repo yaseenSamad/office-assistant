@@ -5,39 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 import { HolidayService } from '../../core/services/holiday.service';
-
-interface Holiday {
-  id: string;
-  name: string;
-  date: Date;
-  isFloater: boolean;
-  daysLeft: number;
-}
-
-interface BlogPost {
-  id: string;
-  author: string;
-  content: string;
-  timestamp: Date;
-  likes: number;
-  comments: number;
-}
-
-interface Employee {
-  id: string;
-  name: string;
-  department: string;
-  type: 'birthday' | 'anniversary' | 'newJoinee';
-  date: Date;
-  yearsCompleted?: number;
-}
-
-interface LeaveBalance {
-  type: string;
-  available: number;
-  used: number;
-  total: number;
-}
+import { PostService } from '../../core/services/post.service';
+import { LeaveService } from '../../core/services/leave.service';
+import { AttendanceService } from '../../core/services/attendance.service';
+import { ToastrService } from 'ngx-toastr';
+import moment from 'moment';
 
 @Component({
   selector: 'app-dashboard',
@@ -614,6 +586,10 @@ interface LeaveBalance {
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private holidayService = inject(HolidayService);
+  private postService = inject(PostService);
+  private leaveService = inject(LeaveService);
+  private attendanceService = inject(AttendanceService);
+  private toastr = inject(ToastrService);
   
   user: User | null = null;
   currentTime: string = '';
@@ -621,87 +597,112 @@ export class DashboardComponent implements OnInit {
   workingHours: string = '0h 0m';
   showBlogForm: boolean = false;
   newBlogContent: string = '';
+  loading = false;
 
   // Holiday data
-  nextHoliday: Holiday | null = null;
-  // upcomingHolidays: Holiday[] = [];
+  nextHoliday: any = null;
+  upcomingHolidays: any[] = [];
 
-  blogPosts: BlogPost[] = [
-    {
-      id: '1',
-      author: 'Sarah Johnson',
-      content: 'Excited to announce our Q2 results! Great work everyone on achieving our targets. 🎉',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      likes: 12,
-      comments: 5
-    },
-    {
-      id: '2',
-      author: 'Mike Chen',
-      content: 'Don\'t forget about the team building event this Friday. Looking forward to seeing everyone there!',
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
-      likes: 8,
-      comments: 3
-    }
-  ];
+  blogPosts: any[] = [];
 
-  leaveBalances: LeaveBalance[] = [
-    { type: 'Annual Leave', available: 18, used: 7, total: 25 },
-    { type: 'Sick Leave', available: 8, used: 2, total: 10 },
-    { type: 'Personal Leave', available: 3, used: 2, total: 5 }
-  ];
+  leaveBalances: any[] = [];
 
-  birthdays: Employee[] = [
-    { id: '1', name: 'Alex Rodriguez', department: 'Engineering', type: 'birthday', date: new Date() }
-  ];
+  todayAttendance: any = null;
 
-  anniversaries: Employee[] = [
-    { id: '2', name: 'Jennifer Smith', department: 'Marketing', type: 'anniversary', date: new Date(), yearsCompleted: 3 }
-  ];
-
-  newJoinees: Employee[] = [
-    { id: '3', name: 'David Kim', department: 'Sales', type: 'newJoinee', date: new Date() }
-  ];
-
-  todaysLeave: any[] = [
-    { name: 'Emma Wilson', department: 'HR', leaveType: 'Annual Leave', status: 'approved' }
-  ];
-
-  upcomingHolidays: any[] = [
-    {
-      id: '2',
-      name: 'Memorial Day',
-      date: new Date('2025-05-26'),
-      isFloater: false,
-      daysLeft: 15
-    },
-    {
-      id: '3',
-      name: 'Personal Day',
-      date: new Date('2025-06-15'),
-      isFloater: true,
-      daysLeft: 35
-    }
-  ];
+  todaysLeave: any[] = [];
 
   ngOnInit(): void {
     this.user = this.authService.getCurrentUser();
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
+    this.loadDashboardData();
+  }
+
+  loadDashboardData(): void {
+    if (!this.user) return;
+    
+    this.loadHolidays();
+    this.loadPosts();
+    this.loadLeaveBalances();
+    this.loadTodayAttendance();
   }
 
   loadHolidays(): void {
-    this.holidayService.getUpcomingHolidays(5).subscribe({
-      next: (holidays) => {
-        this.upcomingHolidays = holidays.map(h => ({
-          ...h,
-          name: h.title,
-          daysLeft: this.calculateDaysUntil(h.date)
-        }));
-        this.nextHoliday = this.upcomingHolidays.length > 0 ? this.upcomingHolidays[0] : null;
+    const currentYear = moment().year();
+    this.holidayService.getHolidays(currentYear).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          const holidays = res.data || [];
+          const upcoming = holidays
+            .filter((h: any) => moment(h.holDate).isAfter(moment()))
+            .slice(0, 5)
+            .map((h: any) => ({
+              ...h,
+              daysLeft: this.calculateDaysUntil(h.holDate)
+            }));
+          
+          this.upcomingHolidays = upcoming;
+          this.nextHoliday = upcoming.length > 0 ? upcoming[0] : null;
+        }
       },
       error: (error) => {
         console.error('Error loading holidays:', error);
+      }
+    });
+  }
+
+  loadPosts(): void {
+    if (!this.user) return;
+    
+    this.postService.getPosts(this.user.userId).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.blogPosts = (res.data || []).slice(0, 5);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading posts:', error);
+      }
+    });
+  }
+
+  loadLeaveBalances(): void {
+    if (!this.user) return;
+    
+    this.leaveService.getLeaveTypes(this.user.userId).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.leaveBalances = (res.data || []).map((type: any) => ({
+            type: type.name,
+            available: type.remaining,
+            used: type.used,
+            total: type.totalAllowed
+          }));
+        }
+      },
+      error: (error) => {
+        console.error('Error loading leave balances:', error);
+      }
+    });
+  }
+
+  loadTodayAttendance(): void {
+    if (!this.user) return;
+    
+    this.attendanceService.getTodayAttendance(this.user.userId).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.todayAttendance = res.data;
+          if (this.todayAttendance && this.todayAttendance.active) {
+            this.clockStatus = 'clocked-in';
+            this.startWorkingHoursCounter();
+          } else {
+            this.clockStatus = 'clocked-out';
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error loading today attendance:', error);
       }
     });
   }
@@ -739,38 +740,123 @@ export class DashboardComponent implements OnInit {
   }
 
   toggleClock(): void {
-    this.clockStatus = this.clockStatus === 'clocked-out' ? 'clocked-in' : 'clocked-out';
-    if (this.clockStatus === 'clocked-in') {
-      // Start working hours counter
-      this.startWorkingHoursCounter();
-    }
+    if (!this.user) return;
+    
+    const actionType = this.clockStatus === 'clocked-out' ? 'clock-in' : 'clock-out';
+    const currentDate = moment().format('YYYY-MM-DD');
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    this.loading = true;
+    this.attendanceService.createAttendance({
+      userId: this.user.userId,
+      actionType,
+      currentDate,
+      currentTime
+    }).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          if (actionType === 'clock-in') {
+            this.clockStatus = 'clocked-in';
+            this.startWorkingHoursCounter();
+            this.toastr.success('Clocked in successfully');
+          } else {
+            this.clockStatus = 'clocked-out';
+            this.workingHours = '0h 0m';
+            this.toastr.success('Clocked out successfully');
+          }
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Clock action failed:', error);
+        this.loading = false;
+      }
+    });
   }
 
   startWorkingHoursCounter(): void {
-    const startTime = Date.now();
-    setInterval(() => {
-      if (this.clockStatus === 'clocked-in') {
-        const elapsed = Date.now() - startTime;
-        const hours = Math.floor(elapsed / (1000 * 60 * 60));
-        const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
-        this.workingHours = `${hours}h ${minutes}m`;
-      }
-    }, 60000);
+    if (this.todayAttendance && this.todayAttendance.clockInTime) {
+      const startTime = moment(this.todayAttendance.clockInTime);
+      const updateHours = () => {
+        if (this.clockStatus === 'clocked-in') {
+          const now = moment();
+          const duration = moment.duration(now.diff(startTime));
+          const hours = Math.floor(duration.asHours());
+          const minutes = Math.floor(duration.minutes());
+          this.workingHours = `${hours}h ${minutes}m`;
+        }
+      };
+      
+      updateHours();
+      setInterval(updateHours, 60000);
+    }
   }
 
   publishBlog(): void {
-    if (this.newBlogContent.trim()) {
-      const newPost: BlogPost = {
-        id: Date.now().toString(),
-        author: `${this.user?.firstName} ${this.user?.lastName}`,
-        content: this.newBlogContent.trim(),
-        timestamp: new Date(),
-        likes: 0,
-        comments: 0
-      };
-      this.blogPosts.unshift(newPost);
-      this.newBlogContent = '';
-      this.showBlogForm = false;
+    if (!this.newBlogContent.trim() || !this.user) return;
+    
+    this.loading = true;
+    const postData = {
+      content: this.newBlogContent.trim(),
+      authorId: this.user.userId
+    };
+
+    this.postService.createPost(postData).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.toastr.success('Post published successfully');
+          this.loadPosts();
+          this.newBlogContent = '';
+          this.showBlogForm = false;
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Failed to publish post:', error);
+        this.loading = false;
+      }
+    });
+  }
+
+  likePost(post: any): void {
+    if (!this.user) return;
+    
+    this.postService.likeOrUnlikePost({
+      userId: this.user.userId,
+      postId: post.id
+    }).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          if (res.message === 'LIKE_REMOVED') {
+            post.likedByMe = false;
+            post.likes -= 1;
+          } else if (res.message === 'LIKE_ADDED') {
+            post.likedByMe = true;
+            post.likes += 1;
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Failed to update like:', error);
+      }
+    });
+  }
+
+  getDaysUntil(holiday: any): string {
+    if (holiday.daysLeft === 0) return 'Today';
+    if (holiday.daysLeft === 1) return 'Tomorrow';
+    if (holiday.daysLeft > 0) return `${holiday.daysLeft} days to go`;
+    return 'Past';
+  }
+
+  getTimeAgo(date: string): string {
+    return moment(date).fromNow();
+  }
+
+  getInitials(name: string): string {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+}
     }
   }
 
