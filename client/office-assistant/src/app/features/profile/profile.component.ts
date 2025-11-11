@@ -9,6 +9,29 @@ import { commonService } from '../../core/services/common.service';
 import { User } from '../../core/models/user.model';
 import moment from 'moment';
 
+interface Education {
+  courseId?: string;
+  course: string;
+  institution: string;
+  fieldOfStudy: string;
+  startDate: string;
+  endDate: string;
+  grade?: string;
+  description?: string;
+}
+
+interface WorkExperience {
+  workExperienceId?: string;
+  title: string;
+  company: string;
+  location: string;
+  startDate: string;
+  endDate?: string;
+  currentWorkStatus: boolean;
+  description: string;
+  skills?: string;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -43,14 +66,14 @@ export class ProfileComponent implements OnInit {
   users: User[] = [];
 
   // Education
-  educationList: any[] = [];
+  educationList: Education[] = [];
   showEducationModal = false;
-  editingEducation: any = null;
+  editingEducation: Education | null = null;
 
   // Experience
-  experienceList: any[] = [];
+  experienceList: WorkExperience[] = [];
   showExperienceModal = false;
-  editingExperience: any = null;
+  editingExperience: WorkExperience | null = null;
 
   // Password Reset
   showPasswordResetModal = false;
@@ -59,17 +82,46 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForms();
     this.loadDropdownData();
-    this.route.paramMap.subscribe(params => {
-      const userId = params.get('id') || this.authService.getCurrentUser()?.userId;
-      if (userId) {
-        this.loadUserProfile(userId);
-      }
-    });
+    
+    // Get current user's profile
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.loadUserProfile(currentUser.userId);
+    }
   }
 
   onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0];
-    this.updateProfile();
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.uploadProfilePicture();
+    }
+  }
+
+  uploadProfilePicture(): void {
+    if (!this.selectedFile || !this.user()) return;
+
+    this.loading = true;
+    const formData = new FormData();
+    formData.append('profilePicture', this.selectedFile);
+
+    this.userService.updateUser(this.user()!.userId, formData).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.toastr.success('Profile picture updated successfully!');
+          this.user.set(res.data);
+          this.selectedFile = null;
+        } else {
+          this.toastr.error('Failed to update profile picture');
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Profile picture upload error:', error);
+        this.toastr.error('Failed to upload profile picture');
+        this.loading = false;
+      }
+    });
   }
 
   initializeForms(): void {
@@ -102,7 +154,7 @@ export class ProfileComponent implements OnInit {
     }, { validator: this.passwordMatchValidator });
 
     this.educationForm = this.formBuilder.group({
-      degree: ['', Validators.required],
+      course: ['', Validators.required],
       institution: ['', Validators.required],
       fieldOfStudy: ['', Validators.required],
       startDate: ['', Validators.required],
@@ -112,12 +164,12 @@ export class ProfileComponent implements OnInit {
     });
 
     this.experienceForm = this.formBuilder.group({
-      jobTitle: ['', Validators.required],
+      title: ['', Validators.required],
       company: ['', Validators.required],
       location: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: [''],
-      current: [false],
+      currentWorkStatus: [false],
       description: ['', Validators.required],
       skills: ['']
     });
@@ -134,8 +186,11 @@ export class ProfileComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (res) => {
         if (res.statusCode === 200) {
-          this.users = res.data;
+          this.users = res.data || [];
         }
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
       }
     });
   }
@@ -143,30 +198,56 @@ export class ProfileComponent implements OnInit {
   loadUserProfile(userId: string): void {
     this.loading = true;
     this.userService.getUserById(userId).subscribe({
-      next: (res) => {
-        if (res.statusCode === 200) {
-          this.user.set(res.data);
-          this.profileForm.patchValue(res.data);
-          if (!this.canEdit()) {
-            this.profileForm.disable();
-          }
-          // Load education and experience
-          this.educationList = res.data.educations || [];
-          this.experienceList = res.data.workExperiences || [];
+      next: (user) => {
+        if (user) {
+          this.user.set(user);
+          this.populateProfileForm(user);
+          this.educationList = user.educations || [];
+          this.experienceList = user.workExperiences || [];
         } else {
           this.toastr.error('Failed to load user profile.');
         }
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error loading profile:', error);
         this.toastr.error('An error occurred while fetching the profile.');
         this.loading = false;
       }
     });
   }
 
+  populateProfileForm(user: User): void {
+    this.profileForm.patchValue({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      dob: user.dob,
+      gender: user.gender,
+      bloodGroup: user.bloodGroup,
+      maritalStatus: user.maritalStatus,
+      nationality: user.nationality,
+      primaryEmail: user.primaryEmail,
+      secondaryEmail: user.secondaryEmail,
+      primaryPhone: user.primaryPhone,
+      secondaryPhone: user.secondaryPhone,
+      linkedin: user.linkedin,
+      permanentAddress: user.permanentAddress,
+      temporaryAddress: user.temporaryAddress,
+      username: user.username,
+      role: user.role,
+      department: user.department?.itemCode || '',
+      subDepartment: user.subDepartment,
+      designation: user.designation,
+      reporter: user.reporter
+    });
+
+    if (!this.canEdit()) {
+      this.profileForm.disable();
+    }
+  }
+
   updateProfile(): void {
-    if (this.profileForm.invalid && !this.selectedFile) {
+    if (this.profileForm.invalid) {
       this.toastr.error('Please fill all required fields correctly.');
       return;
     }
@@ -175,31 +256,26 @@ export class ProfileComponent implements OnInit {
     const userId = this.user()?.userId;
     if (!userId) return;
 
-    const formData = new FormData();
     const formValue = this.profileForm.getRawValue();
-
-    for (const key in formValue) {
-      if (formValue.hasOwnProperty(key)) {
-        formData.append(key, formValue[key]);
-      }
+    
+    // Format department as JSON object
+    const selectedDept = this.departments.find(d => d.itemCode === formValue.department);
+    if (selectedDept) {
+      formValue.department = selectedDept;
     }
 
-    if (this.selectedFile) {
-      formData.append('profilePicture', this.selectedFile, this.selectedFile.name);
-    }
-
-    this.userService.updateUser(userId, formData).subscribe({
-      next: (res: any) => {
+    this.userService.updateUser(userId, formValue).subscribe({
+      next: (res) => {
         if (res.statusCode === 200) {
           this.toastr.success('Profile updated successfully!');
           this.user.set(res.data);
-          this.selectedFile = null;
         } else {
           this.toastr.error('Failed to update profile.');
         }
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Profile update error:', error);
         this.toastr.error('An error occurred while updating the profile.');
         this.loading = false;
       }
@@ -224,14 +300,15 @@ export class ProfileComponent implements OnInit {
           this.toastr.error('Failed to reset password.');
         }
       },
-      error: () => {
+      error: (error) => {
+        console.error('Password reset error:', error);
         this.toastr.error('An error occurred while resetting the password.');
       }
     });
   }
 
   canEdit(): boolean {
-    return this.authService.isAdminOrHR() 
+    return this.isOwnProfile() || this.authService.isAdminOrHR();
   }
 
   isOwnProfile(): boolean {
@@ -261,12 +338,20 @@ export class ProfileComponent implements OnInit {
     this.passwordResetForm.reset();
   }
 
-  // Education Modal
-  openEducationModal(education: any = null): void {
+  // Education Modal Methods
+  openEducationModal(education: Education | null = null): void {
     this.editingEducation = education;
     this.educationForm.reset();
     if (education) {
-      this.educationForm.patchValue(education);
+      this.educationForm.patchValue({
+        course: education.course,
+        institution: education.institution,
+        fieldOfStudy: education.fieldOfStudy,
+        startDate: education.startDate,
+        endDate: education.endDate,
+        grade: education.grade,
+        description: education.description
+      });
     }
     this.showEducationModal = true;
   }
@@ -274,25 +359,67 @@ export class ProfileComponent implements OnInit {
   closeEducationModal(): void {
     this.showEducationModal = false;
     this.editingEducation = null;
+    this.educationForm.reset();
   }
 
   saveEducation(): void {
-    // Logic to save education
+    if (this.educationForm.invalid) {
+      this.toastr.error('Please fill all required fields.');
+      return;
+    }
+
+    const formValue = this.educationForm.value;
+    const educationData: Education = {
+      course: formValue.course,
+      institution: formValue.institution,
+      fieldOfStudy: formValue.fieldOfStudy,
+      startDate: formValue.startDate,
+      endDate: formValue.endDate,
+      grade: formValue.grade,
+      description: formValue.description
+    };
+
+    if (this.editingEducation) {
+      // Update existing education
+      const index = this.educationList.findIndex(e => e.courseId === this.editingEducation!.courseId);
+      if (index !== -1) {
+        this.educationList[index] = { ...this.editingEducation, ...educationData };
+        this.toastr.success('Education updated successfully!');
+      }
+    } else {
+      // Add new education
+      const newEducation: Education = {
+        ...educationData,
+        courseId: this.generateId()
+      };
+      this.educationList.push(newEducation);
+      this.toastr.success('Education added successfully!');
+    }
+
     this.closeEducationModal();
   }
 
-  deleteEducation(education: any): void {
-    // Logic to delete education
+  deleteEducation(education: Education): void {
+    if (confirm('Are you sure you want to delete this education record?')) {
+      this.educationList = this.educationList.filter(e => e.courseId !== education.courseId);
+      this.toastr.success('Education deleted successfully!');
+    }
   }
 
-  // Experience Modal
-  openExperienceModal(experience: any = null): void {
+  // Experience Modal Methods
+  openExperienceModal(experience: WorkExperience | null = null): void {
     this.editingExperience = experience;
     this.experienceForm.reset();
     if (experience) {
       this.experienceForm.patchValue({
-        ...experience,
-        skills: experience.skills?.join(', ')
+        title: experience.title,
+        company: experience.company,
+        location: experience.location,
+        startDate: experience.startDate,
+        endDate: experience.endDate,
+        currentWorkStatus: experience.currentWorkStatus,
+        description: experience.description,
+        skills: experience.skills
       });
     }
     this.showExperienceModal = true;
@@ -301,22 +428,59 @@ export class ProfileComponent implements OnInit {
   closeExperienceModal(): void {
     this.showExperienceModal = false;
     this.editingExperience = null;
+    this.experienceForm.reset();
   }
 
   saveExperience(): void {
-    // Logic to save experience
+    if (this.experienceForm.invalid) {
+      this.toastr.error('Please fill all required fields.');
+      return;
+    }
+
+    const formValue = this.experienceForm.value;
+    const experienceData: WorkExperience = {
+      title: formValue.title,
+      company: formValue.company,
+      location: formValue.location,
+      startDate: formValue.startDate,
+      endDate: formValue.currentWorkStatus ? null : formValue.endDate,
+      currentWorkStatus: formValue.currentWorkStatus,
+      description: formValue.description,
+      skills: formValue.skills
+    };
+
+    if (this.editingExperience) {
+      // Update existing experience
+      const index = this.experienceList.findIndex(e => e.workExperienceId === this.editingExperience!.workExperienceId);
+      if (index !== -1) {
+        this.experienceList[index] = { ...this.editingExperience, ...experienceData };
+        this.toastr.success('Experience updated successfully!');
+      }
+    } else {
+      // Add new experience
+      const newExperience: WorkExperience = {
+        ...experienceData,
+        workExperienceId: this.generateId()
+      };
+      this.experienceList.push(newExperience);
+      this.toastr.success('Experience added successfully!');
+    }
+
     this.closeExperienceModal();
   }
 
-  deleteExperience(experience: any): void {
-    // Logic to delete experience
+  deleteExperience(experience: WorkExperience): void {
+    if (confirm('Are you sure you want to delete this work experience?')) {
+      this.experienceList = this.experienceList.filter(e => e.workExperienceId !== experience.workExperienceId);
+      this.toastr.success('Experience deleted successfully!');
+    }
   }
 
   onCurrentJobChange(): void {
-    const isCurrent = this.experienceForm.get('current')?.value;
+    const isCurrent = this.experienceForm.get('currentWorkStatus')?.value;
     const endDateControl = this.experienceForm.get('endDate');
     if (isCurrent) {
-      endDateControl?.setValue(null);
+      endDateControl?.setValue('');
       endDateControl?.disable();
     } else {
       endDateControl?.enable();
@@ -336,6 +500,28 @@ export class ProfileComponent implements OnInit {
     if (months > 0) {
       result += ` ${months} ${months > 1 ? 'mos' : 'mo'}`;
     }
-    return result.trim();
+    return result.trim() || '1 mo';
+  }
+
+  private generateId(): string {
+    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+  }
+
+  getProfilePictureUrl(): string {
+    const user = this.user();
+    if (user?.profilePicture) {
+      return `http://localhost:5000${user.profilePicture}`;
+    }
+    return '';
+  }
+
+  getDepartmentName(departmentCode: string): string {
+    const dept = this.departments.find(d => d.itemCode === departmentCode);
+    return dept?.itemName || departmentCode;
+  }
+
+  getSkillsArray(skills: string | undefined): string[] {
+    if (!skills) return [];
+    return skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
   }
 }
