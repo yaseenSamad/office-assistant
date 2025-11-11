@@ -20,8 +20,8 @@ export class UserService {
 
   // ✅ Get single user by ID
   getUserById(id: string): Observable<any> {
-    return this.getAllUsers().pipe(
-      map((users) => users.find((u: any) => u.userId === id) || null)
+    return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
+      map((res) => res.statusCode === 200 ? res.data : null)
     );
   }
 
@@ -33,10 +33,10 @@ export class UserService {
   }
 
   // ✅ Update user details
-  updateUser(id: string, userData: Partial<any>): Observable<User> {
+  updateUser(id: string, userData: Partial<any>): Observable<any> {
     return this.http
-      .put<{ data: User }>(`${this.baseUrl}/${id}`, userData)
-      .pipe(map((res) => res.data));
+      .put<any>(`${this.baseUrl}/${id}`, userData)
+      .pipe(map((res) => res));
   }
 
   // ✅ Delete user
