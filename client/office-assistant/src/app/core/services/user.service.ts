@@ -33,7 +33,7 @@ export class UserService {
   }
 
   // ✅ Update user details
-  updateUser(id: string, userData: Partial<User>): Observable<User> {
+  updateUser(id: string, userData: Partial<any>): Observable<User> {
     return this.http
       .put<{ data: User }>(`${this.baseUrl}/${id}`, userData)
       .pipe(map((res) => res.data));
@@ -46,5 +46,9 @@ export class UserService {
       .pipe(map((res) => res.message));
   }
 
-
+  getUpcomingBirthdays(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/upcoming-birthdays`).pipe(
+      map((res) => res)
+    );
+  }
 }

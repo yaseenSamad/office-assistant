@@ -116,13 +116,22 @@
                 <div class="post-content">{{ post.content }}</div>
                 <div class="post-actions">
                   <button class="post-action" (click)="likePost(post)">
-                    <span class="action-icon" [style.color]="post.likedByMe ? '#1976D2' : ''">👍</span>
+                    <span class="action-icon" [class.material-icons]="true" [style.color]="post.likedByMe ? '#1976D2' : ''">favorite_border</span>
                     {{ post.likes }}
                   </button>
-                  <button class="post-action">
-                    <span class="action-icon">💬</span>
+                  <button class="post-action" (click)="toggleCommentSection(post)">
+                    <span class="action-icon material-icons">chat_bubble_outline</span>
                     {{ post.comments?.length || 0 }}
                   </button>
+                </div>
+
+                <!-- Comment Section -->
+                <div *ngIf="post.showComments" class="comments-section mt-2">
+                  <div *ngFor="let comment of post.comments" class="comment mb-2">
+                    <strong>{{ comment.authorName }}</strong>: {{ comment.content }}
+                  </div>
+                  <input type="text" class="form-control" placeholder="Write a comment..." [(ngModel)]="post.newComment">
+                  <button style="margin-top: 5px;" class="btn btn-primary btn-sm mt-1" (click)="addComment(post)">Comment</button>
                 </div>
               </div>
               <div class="no-posts" *ngIf="blogPosts.length === 0">
@@ -185,14 +194,14 @@
             <div class="celebrations">
               <!-- Birthdays -->
               <div class="celebration-section" *ngIf="birthdays.length > 0">
-                <h3>🎂 Birthdays Today</h3>
+                <h3>🎂 Upcoming Birthdays</h3>
                 <div class="celebration-item" *ngFor="let person of birthdays">
                   <div class="celebration-avatar">{{ getInitials(person.name) }}</div>
                   <div class="celebration-details">
                     <h4>{{ person.name }}</h4>
                     <p>{{ person.department }}</p>
                   </div>
-                  <button class="btn btn-sm btn-outline">Wish</button>
+                  <button class="btn btn-sm btn-outline">{{person.birthday}}</button>
                 </div>
               </div>
 

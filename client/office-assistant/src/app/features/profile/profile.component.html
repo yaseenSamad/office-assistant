@@ -2,7 +2,11 @@
   <!-- Profile Header -->
   <div class="profile-header">
     <div class="profile-avatar">
-      {{ getInitials(user()?.firstName, user()?.lastName) }}
+      <img [src]="user()?.profilePicture || 'assets/default-avatar.png'" alt="Profile Picture" class="avatar-img">
+      <input type="file" (change)="onFileSelected($event)" #fileInput style="display: none;">
+      <button class="edit-avatar-btn" (click)="fileInput.click()">
+        <span class="material-icons">edit</span>
+      </button>
     </div>
     <div class="profile-info">
       <h1>{{ user()?.firstName }} {{ user()?.lastName }}</h1>
@@ -158,9 +162,47 @@
 
         <div class="form-section">
           <h3>Professional Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" formControlName="username" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Designation *</label>
+              <input type="text" formControlName="designation" class="form-control" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Department *</label>
+              <select formControlName="department" class="form-control">
+                <option value="">Select Department</option>
+                <option *ngFor="let dept of departments" [value]="dept.itemCode">{{ dept.itemName }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sub Department *</label>
+              <input type="text" formControlName="subDepartment" class="form-control" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Role *</label>
+              <select formControlName="role" class="form-control">
+                <option value="">Select Role</option>
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reporter</label>
+              <select formControlName="reporter" class="form-control">
+                <option value="">Select Reporter</option>
+                <option *ngFor="let user of users" [value]="user.userId">{{ user.firstName }} {{ user.lastName }}</option>
+              </select>
+            </div>
+          </div>
           <div class="form-group">
-            <label class="form-label">Designation *</label>
-            <input type="text" formControlName="designation" class="form-control" />
+            <button type="button" class="btn btn-outline" (click)="openPasswordResetModal()">Reset Password</button>
           </div>
         </div>
       </form>
@@ -390,6 +432,34 @@
       <div class="modal-actions">
         <button type="button" class="btn btn-outline" (click)="closeExperienceModal()">Cancel</button>
         <button type="submit" class="btn btn-primary">{{ editingExperience ? 'Update' : 'Add' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div class="modal-overlay" *ngIf="showPasswordResetModal" (click)="closePasswordResetModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Reset Password</h2>
+      <button class="close-btn" (click)="closePasswordResetModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <form [formGroup]="passwordResetForm" (ngSubmit)="resetPassword()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input type="password" formControlName="newPassword" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" formControlName="confirmPassword" class="form-control" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" (click)="closePasswordResetModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="passwordResetForm.invalid">Reset Password</button>
       </div>
     </form>
   </div>

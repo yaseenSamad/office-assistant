@@ -11,6 +11,7 @@ router.post("/requests/:userId", leaveController.applyLeave);
 router.get("/requests/:userId", leaveController.getMyLeaves);
 router.get("/requests/pending/:userId", leaveController.getPendingApprovals);
 router.patch("/requests/:leaveId/:userId", leaveController.approveLeave);
+router.get("/today", leaveController.getTodayLeaves);
 // router.patch("/requests/:id/reject", leaveController.rejectLeaveRequest);
 // router.get("/requests", leaveController.getAllLeaveRequests);
 

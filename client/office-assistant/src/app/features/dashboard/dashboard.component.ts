@@ -7,9 +7,10 @@ import { User } from '../../core/models/user.model';
 import { HolidayService } from '../../core/services/holiday.service';
 import { PostService } from '../../core/services/post.service';
 import { LeaveService } from '../../core/services/leave.service';
-import { AttendanceService } from '../../core/services/attendance.service';
+import { UserService } from '../../core/services/user.service';
 import { ToastrService } from 'ngx-toastr';
 import moment from 'moment';
+import { AttendanceService } from '../../core/services/attendance.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -589,6 +590,7 @@ export class DashboardComponent implements OnInit {
   private postService = inject(PostService);
   private leaveService = inject(LeaveService);
   private attendanceService = inject(AttendanceService);
+  private userService = inject(UserService);
   private toastr = inject(ToastrService);
   
   user: User | null = null;
@@ -611,7 +613,7 @@ export class DashboardComponent implements OnInit {
 
   todaysLeave: any[] = [];
   
-  birthdays = []
+  birthdays: any[] = [];
 
   anniversaries = []
 
@@ -633,6 +635,8 @@ export class DashboardComponent implements OnInit {
     this.loadPosts();
     this.loadLeaveBalances();
     this.loadTodayAttendance();
+    this.loadBirthdays();
+    this.loadTodaysLeave();
   }
 
   loadHolidays(): void {
@@ -655,6 +659,19 @@ export class DashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading holidays:', error);
+      }
+    });
+  }
+
+  loadTodaysLeave(): void {
+    this.leaveService.getTodayLeaves().subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.todaysLeave = res.data || [];
+        }
+      },
+      error: (error) => {
+        console.error('Error loading today leaves:', error);
       }
     });
   }
@@ -711,6 +728,19 @@ export class DashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading today attendance:', error);
+      }
+    });
+  }
+
+  loadBirthdays(): void {
+    this.userService.getUpcomingBirthdays().subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.birthdays = res.data || [];
+        }
+      },
+      error: (error) => {
+        console.error('Error loading upcoming birthdays:', error);
       }
     });
   }
@@ -848,6 +878,30 @@ export class DashboardComponent implements OnInit {
       error: (error) => {
         console.error('Failed to update like:', error);
       }
+    });
+  }
+
+  toggleCommentSection(post: any) {
+    post.showComments = !post.showComments;
+  }
+
+  addComment(post: any) {
+    if (!post.newComment?.trim() || !this.user) return;
+
+    const newComment = {
+      userId: this.user.userId,
+      content: post.newComment,
+      postId: post.id
+    };
+
+    this.postService.addComment(newComment).subscribe({
+      next: (res) => {
+        if(res.statusCode == 200){
+          this.loadPosts()
+          post.newComment = '';
+        }
+      },
+      error: (err) => console.error('Failed to add comment', err)
     });
   }
 

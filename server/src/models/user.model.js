@@ -97,6 +97,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: true,
     },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   });
 
   return User;

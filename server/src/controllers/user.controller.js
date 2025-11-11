@@ -1,6 +1,8 @@
 const { User } = require("../models");
 const bcrypt = require("bcryptjs");
-const {errorResponse,successResponse} = require("../utils/response")
+const {errorResponse,successResponse} = require("../utils/response");
+const { Op, Sequelize } = require("sequelize");
+const moment = require("moment");
 
 exports.createUser = async (req, res) => {
   try {
@@ -78,5 +80,49 @@ exports.deleteUser = async (req, res) => {
     return successResponse(res, "User deleted successfully");
   } catch (err) {
     return errorResponse(res, err);
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+
+    if (req.file) {
+      updateData.profilePicture = `/uploads/avatars/${req.file.filename}`;
+    }
+
+    const result = await User.update(updateData, { where: { userId: id } });
+    if (!result[0]) return errorResponse(res, "User not found", 404);
+
+    const updatedUser = await User.findByPk(id);
+    return successResponse(res, "User updated successfully", updatedUser);
+  } catch (err) {
+    return errorResponse(res, err);
+  }
+};
+
+exports.getUpcomingBirthdays = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ['firstName', 'lastName', 'dob', 'subDepartment'],
+      where: {
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn('DAYOFYEAR', Sequelize.col('dob')), '>=', Sequelize.fn('DAYOFYEAR', new Date())),
+          Sequelize.where(Sequelize.fn('DAYOFYEAR', Sequelize.col('dob')), '<=', Sequelize.fn('DAYOFYEAR', new Date(new Date().setDate(new Date().getDate() + 30)))),
+        ]
+      }
+    });
+
+    const formattedBirthdays = users.map(user => ({
+      name: `${user.firstName} ${user.lastName}`,
+      department: user.subDepartment,
+      birthday: moment(user.dob).format('MMMM Do')
+    }));
+
+    return successResponse(res, "Upcoming birthdays fetched successfully", formattedBirthdays);
+  } catch (err) {
+    console.error("Error fetching upcoming birthdays:", err);
+    return errorResponse(res, "Failed to fetch upcoming birthdays");
   }
 };

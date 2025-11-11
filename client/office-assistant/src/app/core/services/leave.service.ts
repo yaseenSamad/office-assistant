@@ -37,6 +37,10 @@ export class LeaveService {
     return this.http.delete(`/api/leaves/types/${leaveTypeId}`).pipe(map(res => res));
   }
 
+  getTodayLeaves(): Observable<any> {
+    return this.http.get('/api/leaves/today').pipe(map(res => res));
+  }
+
   //////////////////
 
   

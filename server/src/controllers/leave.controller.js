@@ -273,3 +273,34 @@ exports.approveLeave = async (req, res) => {
     return errorResponse(res, "Failed to update leave status");
   }
 };
+
+exports.getTodayLeaves = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+
+    const leaves = await LeaveRequest.findAll({
+      where: {
+        status: "Approved",
+        startDate: { [Op.lte]: today },
+        endDate: { [Op.gte]: today },
+      },
+      include: [
+        { model: User, as: "requester", attributes: ["firstName", "lastName", "subDepartment"] },
+        { model: LeaveType, as: "leaveType", attributes: ["name"] },
+      ],
+    });
+
+    const formattedLeaves = leaves.map(leave => ({
+      name: `${leave.requester.firstName} ${leave.requester.lastName}`,
+      department: leave.requester.subDepartment,
+      leaveType: leave.leaveType.name,
+      status: leave.status,
+    }));
+
+    return successResponse(res, "Today's leaves fetched successfully", formattedLeaves);
+  } catch (err) {
+    console.error("Error fetching today's leaves:", err);
+    return errorResponse(res, "Failed to fetch today's leaves");
+  }
+};

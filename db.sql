@@ -173,3 +173,40 @@ CREATE TABLE `attendances` (
   KEY `fk_user_attendance` (`userId`),
   CONSTRAINT `fk_user_attendance` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- office_assistant.workexperiences definition
+
+CREATE TABLE `workexperiences` (
+  `workExperienceId` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `company` varchar(100) NOT NULL,
+  `location` varchar(100) DEFAULT NULL,
+  `startDate` date NOT NULL,
+  `endDate` date DEFAULT NULL,
+  `currentWorkStatus` tinyint(1) DEFAULT '0',
+  `description` text,
+  `skills` varchar(255) DEFAULT NULL,
+  `userId` char(36) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`workExperienceId`,`userId`),
+  KEY `userId` (`userId`),
+  CONSTRAINT `workexperiences_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE education (
+    courseId CHAR(36) NOT NULL PRIMARY KEY,
+    userId CHAR(36) NOT NULL,
+    course VARCHAR(150) NOT NULL,
+    institution VARCHAR(150) NOT NULL,
+    fieldOfStudy VARCHAR(100),
+    startDate DATE,
+    endDate DATE,
+    grade VARCHAR(20),
+    description TEXT,
+    createdAt TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	FOREIGN KEY (userId) REFERENCES users(userId)
+);

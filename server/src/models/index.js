@@ -13,6 +13,8 @@ const Comment = require("./comment.model")(sequelize, DataTypes);
 const LeaveType = require("./leaveType.model")(sequelize, DataTypes);
 const LeaveRequest = require("./leaveRequest.model")(sequelize, DataTypes);
 const Attendance = require("./attendance.model")(sequelize, DataTypes);
+const WorkExperience = require("./work_experience.model")(sequelize, DataTypes);
+const Education = require("./education.model")(sequelize, DataTypes);
 
 // Associations
 // User -> Reporter (self-reference)
@@ -44,7 +46,7 @@ Like.belongsTo(User, { foreignKey: "userId", as: "user" });
 Post.hasMany(Comment, { foreignKey: "postId", as: "comments" });
 Comment.belongsTo(Post, { foreignKey: "postId" });
 // User.hasMany(Comment, { foreignKey: "userId", as: "userComments" });
-// Comment.belongsTo(User, { foreignKey: "userId", as: "user" });
+// Comment.belongs to(User, { foreignKey: "userId", as: "user" });
 
 // User ↔ Comment
 User.hasMany(Comment, { foreignKey: "userId", as: "userComments" });
@@ -68,6 +70,12 @@ User.hasMany(Attendance, { foreignKey: "userId",as: "attendances",onDelete: "CAS
 
 Attendance.belongsTo(User, { foreignKey: "userId",as: "user",onDelete: "CASCADE",onUpdate: "CASCADE"});
 
+User.hasMany(WorkExperience, { foreignKey: "userId", as: "workExperiences", onDelete: "CASCADE" });
+WorkExperience.belongsTo(User, { foreignKey: "userId", as: "user", onDelete: "CASCADE" });
+
+User.hasMany(Education, { foreignKey: "userId", as: "educations", onDelete: "CASCADE" });
+Education.belongsTo(User, { foreignKey: "userId", as: "user", onDelete: "CASCADE" });
 
 
-module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType,Attendance  };
+
+module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType,Attendance, WorkExperience, Education };

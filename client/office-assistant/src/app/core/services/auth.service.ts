@@ -113,5 +113,7 @@ export class AuthService {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
 
-
+  resetPassword(userId: string, newPassword: string): Observable<any> {
+    return this.http.post<any>('/api/auth/reset-password', { userId, newPassword });
+  }
 }

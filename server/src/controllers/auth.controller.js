@@ -49,3 +49,25 @@ exports.login = async (req, res) => {
     return errorResponse(res, error);
   }
 };
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    if (!userId || !newPassword) {
+      return errorResponse(res, "Missing required fields", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await User.update(
+      { password: hashedPassword },
+      { where: { userId } }
+    );
+
+    return successResponse(res, "Password reset successfully");
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return errorResponse(res, error);
+  }
+};
