@@ -1,7 +1,7 @@
-const { User } = require("../models");
+const { User,WorkExperience,Education } = require("../models");
 const bcrypt = require("bcryptjs");
 const {errorResponse,successResponse} = require("../utils/response");
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, where } = require("sequelize");
 const moment = require("moment");
 
 exports.createUser = async (req, res) => {
@@ -62,16 +62,23 @@ exports.getUsers = async (req, res) => {
     return errorResponse(res, err);
   }
 };
-
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id, {
+      include: [
+        { model: WorkExperience, as: 'workExperiences' },
+        { model: Education, as: 'educations' }
+      ]
+    });
+
     if (!user) return errorResponse(res, "User not found", 404);
+
     return successResponse(res, "User fetched successfully", user);
   } catch (err) {
     return errorResponse(res, err);
   }
 };
+
 
 exports.deleteUser = async (req, res) => {
   try {

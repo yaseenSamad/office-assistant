@@ -227,7 +227,7 @@
           </div>
           <div class="education-content">
             <div class="education-header">
-              <h3>{{ education.degree }}</h3>
+              <h3>{{ education.course }}</h3>
               <div class="education-actions">
                 <button class="action-btn" (click)="openEducationModal(education)">
                   <span class="material-icons">edit</span>
@@ -276,11 +276,11 @@
           <div class="experience-content">
             <div class="experience-header">
               <div>
-                <h3>{{ experience.jobTitle }}</h3>
+                <h3>{{ experience.title }}</h3>
                 <p class="experience-company">{{ experience.company }}</p>
               </div>
               <div class="experience-actions">
-                <span class="current-badge" *ngIf="experience.current">Current</span>
+                <span class="current-badge" *ngIf="experience.currentWorkStatus">Current</span>
                 <button class="action-btn" (click)="openExperienceModal(experience)">
                   <span class="material-icons">edit</span>
                 </button>
@@ -292,14 +292,14 @@
             <p class="experience-location">{{ experience.location }}</p>
             <p class="experience-duration">
               {{ formatDate(experience.startDate) }} - 
-              {{ experience.current ? 'Present' : formatDate(experience.endDate) }}
+              {{ experience.currentWorkStatus ? 'Present' : formatDate(experience.endDate) }}
               <span class="duration-text">
-                ({{ calculateDuration(experience.startDate, experience.endDate, experience.current) }})
+                ({{ calculateDuration(experience.startDate, experience.endDate, experience.currentWorkStatus) }})
               </span>
             </p>
             <p class="experience-description">{{ experience.description }}</p>
-            <div class="experience-skills" *ngIf="experience.skills && experience.skills.length > 0">
-              <span class="skill-tag" *ngFor="let skill of experience.skills">{{ skill }}</span>
+            <div class="experience-skills" *ngIf="experience.skills && getSkillsArray(experience.skills).length > 0">
+              <span class="skill-tag" *ngFor="let skill of getSkillsArray(experience.skills)">{{ skill }}</span>
             </div>
           </div>
         </div>
@@ -329,7 +329,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label">Degree *</label>
-          <input type="text" formControlName="degree" class="form-control" placeholder="e.g., Bachelor of Technology" />
+          <input type="text" formControlName="course" class="form-control" placeholder="e.g., Bachelor of Technology" />
         </div>
         
         <div class="form-group">
@@ -386,7 +386,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label">Job Title *</label>
-          <input type="text" formControlName="jobTitle" class="form-control" placeholder="e.g., Software Developer" />
+          <input type="text" formControlName="title" class="form-control" placeholder="e.g., Software Developer" />
         </div>
         
         <div class="form-group">
@@ -412,7 +412,7 @@
         
         <div class="form-group">
           <div class="checkbox-group">
-            <input type="checkbox" formControlName="current" (change)="onCurrentJobChange()" class="form-checkbox" />
+            <input type="checkbox" formControlName="currentWorkStatus" (change)="onCurrentJobChange()" class="form-checkbox" />
             <label class="checkbox-label">I currently work here</label>
           </div>
         </div>

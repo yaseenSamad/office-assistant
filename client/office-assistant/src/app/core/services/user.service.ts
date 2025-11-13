@@ -20,8 +20,8 @@ export class UserService {
 
   // ✅ Get single user by ID
   getUserById(id: string): Observable<any> {
-    return this.getAllUsers().pipe(
-      map((users) => users.find((u: any) => u.userId === id) || null)
+    return this.http.get<any>(`/api/users/${id}`).pipe(
+      map((res) => res)
     );
   }
 

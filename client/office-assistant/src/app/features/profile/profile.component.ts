@@ -6,6 +6,8 @@ import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { commonService } from '../../core/services/common.service';
+import { EducationService } from '../../core/services/education.service';
+import { WorkExperienceService } from '../../core/services/work_experience.service';
 import { User } from '../../core/models/user.model';
 import moment from 'moment';
 
@@ -46,6 +48,8 @@ export class ProfileComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private toastr = inject(ToastrService);
   private commonService = inject(commonService);
+  private workExperienceService = inject(WorkExperienceService);
+  private educationService = inject(EducationService);
 
   user = signal<User | null>(null);
   loading = false;
@@ -106,7 +110,7 @@ export class ProfileComponent implements OnInit {
     formData.append('profilePicture', this.selectedFile);
 
     this.userService.updateUser(this.user()!.userId, formData).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.statusCode === 200) {
           this.toastr.success('Profile picture updated successfully!');
           this.user.set(res.data);
@@ -182,6 +186,7 @@ export class ProfileComponent implements OnInit {
 
   loadDropdownData(): void {
     this.roles = this.commonService.rolesList;
+    console.log(this.roles)
     this.departments = this.commonService.departmentList;
     this.userService.getAllUsers().subscribe({
       next: (res) => {
@@ -198,12 +203,12 @@ export class ProfileComponent implements OnInit {
   loadUserProfile(userId: string): void {
     this.loading = true;
     this.userService.getUserById(userId).subscribe({
-      next: (user) => {
-        if (user) {
-          this.user.set(user);
-          this.populateProfileForm(user);
-          this.educationList = user.educations || [];
-          this.experienceList = user.workExperiences || [];
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.user.set(res.data);
+          this.populateProfileForm(res.data);
+          this.educationList = res.data.educations || [];
+          this.experienceList = res.data.workExperiences || [];
         } else {
           this.toastr.error('Failed to load user profile.');
         }
@@ -217,7 +222,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  populateProfileForm(user: User): void {
+  populateProfileForm(user: any): void {
     this.profileForm.patchValue({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -234,7 +239,7 @@ export class ProfileComponent implements OnInit {
       permanentAddress: user.permanentAddress,
       temporaryAddress: user.temporaryAddress,
       username: user.username,
-      role: user.role,
+      role: user.role?.toUpperCase(),
       department: user.department?.itemCode || '',
       subDepartment: user.subDepartment,
       designation: user.designation,
@@ -265,7 +270,7 @@ export class ProfileComponent implements OnInit {
     }
 
     this.userService.updateUser(userId, formValue).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.statusCode === 200) {
           this.toastr.success('Profile updated successfully!');
           this.user.set(res.data);
@@ -308,7 +313,7 @@ export class ProfileComponent implements OnInit {
   }
 
   canEdit(): boolean {
-    return this.isOwnProfile() || this.authService.isAdminOrHR();
+    return this.authService.isAdminOrHR();
   }
 
   isOwnProfile(): boolean {
@@ -369,40 +374,42 @@ export class ProfileComponent implements OnInit {
     }
 
     const formValue = this.educationForm.value;
-    const educationData: Education = {
-      course: formValue.course,
-      institution: formValue.institution,
-      fieldOfStudy: formValue.fieldOfStudy,
-      startDate: formValue.startDate,
-      endDate: formValue.endDate,
-      grade: formValue.grade,
-      description: formValue.description
-    };
+    const userId = this.user()?.userId;
+    if (!userId) return;
 
     if (this.editingEducation) {
-      // Update existing education
-      const index = this.educationList.findIndex(e => e.courseId === this.editingEducation!.courseId);
-      if (index !== -1) {
-        this.educationList[index] = { ...this.editingEducation, ...educationData };
-        this.toastr.success('Education updated successfully!');
-      }
+      this.educationService.updateEducation(this.editingEducation.courseId || '', formValue).subscribe({
+        next: () => {
+          this.toastr.success('Education updated successfully!');
+          this.loadUserProfile(userId);
+          this.closeEducationModal();
+        },
+        error: () => this.toastr.error('Failed to update education.')
+      });
     } else {
-      // Add new education
-      const newEducation: Education = {
-        ...educationData,
-        courseId: this.generateId()
-      };
-      this.educationList.push(newEducation);
-      this.toastr.success('Education added successfully!');
+      this.educationService.createEducation(userId, formValue).subscribe({
+        next: () => {
+          this.toastr.success('Education added successfully!');
+          this.loadUserProfile(userId);
+          this.closeEducationModal();
+        },
+        error: () => this.toastr.error('Failed to add education.')
+      });
     }
-
-    this.closeEducationModal();
   }
 
   deleteEducation(education: Education): void {
     if (confirm('Are you sure you want to delete this education record?')) {
-      this.educationList = this.educationList.filter(e => e.courseId !== education.courseId);
-      this.toastr.success('Education deleted successfully!');
+      const userId = this.user()?.userId;
+      if (!userId || !education.courseId) return;
+
+      this.educationService.deleteEducation(education.courseId).subscribe({
+        next: () => {
+          this.toastr.success('Education deleted successfully!');
+          this.loadUserProfile(userId);
+        },
+        error: () => this.toastr.error('Failed to delete education.')
+      });
     }
   }
 
@@ -443,36 +450,48 @@ export class ProfileComponent implements OnInit {
       company: formValue.company,
       location: formValue.location,
       startDate: formValue.startDate,
-      endDate: formValue.currentWorkStatus ? null : formValue.endDate,
+      endDate: formValue.currentWorkStatus ? undefined : formValue.endDate,
       currentWorkStatus: formValue.currentWorkStatus,
       description: formValue.description,
       skills: formValue.skills
     };
 
-    if (this.editingExperience) {
-      // Update existing experience
-      const index = this.experienceList.findIndex(e => e.workExperienceId === this.editingExperience!.workExperienceId);
-      if (index !== -1) {
-        this.experienceList[index] = { ...this.editingExperience, ...experienceData };
-        this.toastr.success('Experience updated successfully!');
-      }
-    } else {
-      // Add new experience
-      const newExperience: WorkExperience = {
-        ...experienceData,
-        workExperienceId: this.generateId()
-      };
-      this.experienceList.push(newExperience);
-      this.toastr.success('Experience added successfully!');
-    }
+    const userId = this.user()?.userId;
+    if (!userId) return;
 
-    this.closeExperienceModal();
+    if (this.editingExperience) {
+      this.workExperienceService.updateWorkExperience(this.editingExperience.workExperienceId!, experienceData).subscribe({
+        next: () => {
+          this.toastr.success('Experience updated successfully!');
+          this.loadUserProfile(userId);
+          this.closeExperienceModal();
+        },
+        error: () => this.toastr.error('Failed to update experience.')
+      });
+    } else {
+      this.workExperienceService.createWorkExperience(userId, experienceData).subscribe({
+        next: () => {
+          this.toastr.success('Experience added successfully!');
+          this.loadUserProfile(userId);
+          this.closeExperienceModal();
+        },
+        error: () => this.toastr.error('Failed to add experience.')
+      });
+    }
   }
 
   deleteExperience(experience: WorkExperience): void {
     if (confirm('Are you sure you want to delete this work experience?')) {
-      this.experienceList = this.experienceList.filter(e => e.workExperienceId !== experience.workExperienceId);
-      this.toastr.success('Experience deleted successfully!');
+      const userId = this.user()?.userId;
+      if (!userId || !experience.workExperienceId) return;
+
+      this.workExperienceService.deleteWorkExperience(experience.workExperienceId).subscribe({
+        next: () => {
+          this.toastr.success('Experience deleted successfully!');
+          this.loadUserProfile(userId);
+        },
+        error: () => this.toastr.error('Failed to delete experience.')
+      });
     }
   }
 

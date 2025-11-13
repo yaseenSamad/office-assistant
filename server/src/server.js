@@ -13,6 +13,8 @@ const holidayRoutes = require("./routes/holiday.routes");
 const postRoutes = require("./routes/post.routes");
 const leaveRoutes = require("./routes/leave.routes")
 const attendanceRoutes = require("./routes/attendance.routes")
+const workExperienceRoutes = require("./routes/work_experience.routes");
+const educationRoutes = require("./routes/education.routes");
 
 // const attendanceRoutes = require("./routes/attendance.routes");
 // const leaveRoutes = require("./routes/leave.routes");
@@ -39,10 +41,12 @@ app.use("/api/holidays", holidayRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/leaves", leaveRoutes);
 app.use("/api/attendance",attendanceRoutes );
+app.use("/api/work-experience", workExperienceRoutes);
+app.use("/api/education", educationRoutes);
 
 // app.use("/api/attendance", attendanceRoutes);
-// app.use("/api/leaves", leaveRoutes);
-// app.use("/api/posts", postRoutes);
+// const leaveRoutes = require("./routes/leave.routes");
+// const postRoutes = require("./routes/post.routes");
 
 const PORT = process.env.PORT || 5000;
 

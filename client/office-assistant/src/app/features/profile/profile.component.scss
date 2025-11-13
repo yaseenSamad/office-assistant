@@ -27,6 +27,36 @@
   font-size: var(--font-size-3xl);
   font-weight: 700;
   border: 4px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar .edit-avatar-btn {
+  position: absolute;
+  bottom: 14px;
+  right: 17px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast);
+}
+
+.profile-avatar .edit-avatar-btn:hover {
+  transform: scale(1.1);
 }
 
 .profile-info h1 {

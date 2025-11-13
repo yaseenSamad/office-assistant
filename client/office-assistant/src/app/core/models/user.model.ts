@@ -28,6 +28,7 @@ export interface User {
   role: UserRole;
   designation: string;
   reporterId?: string;          // UUID of manager/reporter
+  profilePicture?: string;
 }
 
 
