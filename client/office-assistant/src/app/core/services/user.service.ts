@@ -33,10 +33,10 @@ export class UserService {
   }
 
   // ✅ Update user details
-  updateUser(id: string, userData: Partial<any>): Observable<User> {
+  updateUser(id: string, userData: Partial<any>): Observable<any> {
     return this.http
-      .put<{ data: User }>(`${this.baseUrl}/${id}`, userData)
-      .pipe(map((res) => res.data));
+      .put<any>(`${this.baseUrl}/${id}`, userData)
+      .pipe(map((res) => res));
   }
 
   // ✅ Delete user
