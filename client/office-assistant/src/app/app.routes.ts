@@ -64,6 +64,10 @@ export const APP_ROUTES: Routes = [
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)
       },
+      {
+        path: 'employees/:id',
+        loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)
+      },
       // {
       //   path: 'profile',
       //   loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)

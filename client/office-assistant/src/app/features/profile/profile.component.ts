@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router'; // Import Router
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
@@ -50,6 +50,7 @@ export class ProfileComponent implements OnInit {
   private commonService = inject(commonService);
   private workExperienceService = inject(WorkExperienceService);
   private educationService = inject(EducationService);
+  private router = inject(Router); // Inject Router
 
   user = signal<User | null>(null);
   loading = false;
@@ -88,11 +89,22 @@ export class ProfileComponent implements OnInit {
     this.initializeForms();
     this.loadDropdownData();
     
-    // Get current user's profile
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser) {
-      this.loadUserProfile(currentUser.userId);
-    }
+    // Check if a userId is provided in the route
+    this.route.params.subscribe(params => {
+      const userId = params['id'];
+      if (userId) {
+        this.loadUserProfile(userId);
+      } else {
+        // If no userId in route, load current user's profile
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser) {
+          this.loadUserProfile(currentUser.userId);
+        } else {
+          this.toastr.error('User not authenticated.');
+          this.router.navigate(['/auth/login']); // Redirect to login if no user and no ID
+        }
+      }
+    });
   }
 
   onFileSelected(event: any): void {

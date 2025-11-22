@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router'; // Import Router
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User, UserRole } from '../../../core/models/user.model';
@@ -11,7 +11,7 @@ import { commonService } from '../../../core/services/common.service';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="employees-container">
       <!-- Header Section -->
@@ -65,7 +65,7 @@ import { commonService } from '../../../core/services/common.service';
       <!-- Employees List -->
       <div class="employees-content">
         <div class="employees-grid" *ngIf="filteredEmployees().length > 0">
-          <div class="employee-card" *ngFor="let employee of filteredEmployees()">
+          <div class="employee-card" *ngFor="let employee of filteredEmployees()" (click)="navigateToProfile(employee.userId)">
             <div class="employee-avatar">
               {{ getInitials(employee.firstName, employee.lastName) }}
             </div>
@@ -229,6 +229,7 @@ import { commonService } from '../../../core/services/common.service';
       padding: var(--space-4);
       transition: all var(--transition-fast);
       position: relative;
+      cursor: pointer; /* Add cursor pointer to indicate clickability */
     }
 
     .employee-card:hover {
@@ -384,6 +385,7 @@ export class EmployeeListComponent implements OnInit {
   private authService = inject(AuthService);
   private teamService = inject(TeamService)
   private commonService = inject(commonService)
+  private router = inject(Router); // Inject Router
 
   employees = signal<User[]>([]);
   filteredEmployees = signal<User[]>([]);
@@ -451,7 +453,9 @@ export class EmployeeListComponent implements OnInit {
     this.filteredEmployees.set(this.employees());
   }
 
-
+  navigateToProfile(userId: string): void {
+    this.router.navigate(['/employees', userId]);
+  }
 
   getInitials(firstName: string, lastName: string): string {
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
