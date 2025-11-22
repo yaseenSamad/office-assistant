@@ -12,14 +12,14 @@ import { commonService } from '../../../core/services/common.service';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="employees-container">
       <!-- Header Section -->
       <div class="employees-header" *ngIf="!isTeamView">
         <div class="header-content">
-          <h1>Employees</h1>
-          <p>Manage and view all company employees</p>
+          <h1>Users</h1>
+          <p>Manage and view all users in the company</p>
         </div>
         <div class="header-actions">
           <div class="search-box">
@@ -500,6 +500,14 @@ export class EmployeeListComponent implements OnInit {
 
   navigateToProfile(userId: string): void {
     this.router.navigate(['/employees', userId]);
+  }
+
+  canAddUser(): boolean {
+    return this.authService.isAdminOrHR();
+  }
+
+  navigateToAddUser(): void {
+    this.router.navigate(['/register']);
   }
 
   getInitials(firstName: string, lastName: string): string {

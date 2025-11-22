@@ -48,12 +48,6 @@
                 </a>
               </li>
               
-              <li *ngIf="isAdmin()">
-                <a routerLink="/user-management" routerLinkActive="active">
-                  <span class="material-icons">people</span>
-                  User Management
-                </a>
-              </li>
               
               <li>
                 <a routerLink="/holidays" routerLinkActive="active">
@@ -100,11 +94,11 @@
               <li>
                 <a routerLink="/employees" routerLinkActive="active">
                   <span class="material-icons">people</span>
-                  Employees
+                  Users
                 </a>
               </li>
 
-              <li>
+              <li *ngIf="canRegister()">
                 <a routerLink="/register" routerLinkActive="active">
                   <span class="material-icons">person_add</span>
                   Register

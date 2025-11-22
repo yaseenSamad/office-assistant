@@ -76,8 +76,8 @@ export class AuthService {
   }
 
   hasRole(roles: UserRole[]): boolean {
-    const user = this.getCurrentUser();
-    return user !== null && roles.includes(user.role);
+    const user: any = this.getCurrentUser();
+    return user !== null && roles.includes(user.role?.toUpperCase());
   }
 
   isAdmin(): boolean {

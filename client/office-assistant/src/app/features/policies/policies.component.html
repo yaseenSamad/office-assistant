@@ -6,7 +6,7 @@
         <p>Manage and access all official company documents.</p>
       </div>
       <div class="header-actions">
-        <button *ngIf="canEdit()" class="btn btn-primary" (click)="openPolicyModal()">
+        <button *ngIf="canManagePolicies()" class="btn btn-primary" (click)="openPolicyModal()">
           <span class="material-icons">add</span>
           <span>Add Policy</span>
         </button>
@@ -21,7 +21,7 @@
             <th>Description</th>
             <th>Updated At</th>
             <th>Updated By</th>
-            <th *ngIf="canEdit()">Actions</th>
+            <th *ngIf="canManagePolicies()">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
             <td class="description-cell">{{ policy.description }}</td>
             <td>{{ formatDate(policy.updatedAt) }}</td>
             <td>{{ getUserName(policy.updatedBy) }}</td>
-            <td *ngIf="canEdit()">
+            <td *ngIf="canManagePolicies()">
               <div class="action-buttons">
                 <!-- <button class="btn btn-sm btn-accent" (click)="editPolicy(policy)">
                   <span class="material-icons">edit</span>
@@ -46,7 +46,7 @@
             </td>
           </tr>
           <tr *ngIf="!policies() || policies().length === 0">
-            <td [colSpan]="canEdit() ? 5 : 4" class="empty-state-cell">
+            <td [colSpan]="canManagePolicies() ? 5 : 4" class="empty-state-cell">
               No policies have been added yet.
             </td>
           </tr>

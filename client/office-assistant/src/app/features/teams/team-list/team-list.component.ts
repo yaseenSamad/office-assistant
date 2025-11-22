@@ -12,7 +12,7 @@ import { AddMembersRequest, CreateTeamRequest, Team } from '../../../core/models
 @Component({
   selector: 'app-team-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink], // Add RouterLink
+  imports: [CommonModule, FormsModule, ReactiveFormsModule], // Add RouterLink
   templateUrl: './team-list.component.html',
   styleUrls: ['./team-list.component.scss']
 })

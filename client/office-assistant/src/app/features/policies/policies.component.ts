@@ -137,8 +137,8 @@ export class PolicyComponent implements OnInit {
     return new Date(date).toLocaleDateString();
   }
 
-  canEdit(): boolean {
-    return true;
+  canManagePolicies(): boolean {
+    return this.authService.isAdminOrHR();
   }
 
   getUserName(userId: string): string {

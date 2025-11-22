@@ -240,4 +240,8 @@ export class MainLayoutComponent {
   isHR(): boolean {
     return this.authService.isHR();
   }
+
+  canRegister(): boolean {
+    return this.authService.isAdminOrHR();
+  }
 }
