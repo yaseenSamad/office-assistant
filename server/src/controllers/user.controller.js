@@ -94,9 +94,32 @@ exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
+    const authenticatedUser = req.user;
 
     if (req.file) {
       updateData.profilePicture = `/uploads/avatars/${req.file.filename}`;
+    }
+
+    const userToUpdate = await User.findByPk(id);
+    if (!userToUpdate) {
+      return errorResponse(res, "User not found", 404);
+    }
+
+    const isOwnProfile = authenticatedUser.userId === id;
+    const isUpdatingProfessionalInfo = 'role' in updateData || 'department' in updateData || 'designation' in updateData;
+
+    if (isUpdatingProfessionalInfo) {
+      const canUpdateProfessionalInfo =
+        authenticatedUser.role === 'admin' ||
+        (authenticatedUser.role === 'hr' && userToUpdate.role !== 'hr');
+
+      if (!canUpdateProfessionalInfo) {
+        return errorResponse(res, "You are not authorized to update professional information for this user.", 403);
+      }
+    } else {
+      if (!isOwnProfile) {
+        return errorResponse(res, "You can only update your own personal information.", 403);
+      }
     }
 
     const result = await User.update(updateData, { where: { userId: id } });

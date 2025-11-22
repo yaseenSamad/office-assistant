@@ -2,10 +2,7 @@
   <!-- Profile Header -->
   <div class="profile-header">
     <div class="profile-avatar">
-      <div class="avatar-display" *ngIf="!getProfilePictureUrl()">
-        {{ getInitials(user()?.firstName, user()?.lastName) }}
-      </div>
-      <img *ngIf="getProfilePictureUrl()" [src]="getProfilePictureUrl()" alt="Profile Picture" class="avatar-img">
+      <img [src]="getProfilePictureUrl()" alt="Profile Picture" class="avatar-img">
       <input type="file" (change)="onFileSelected($event)" #fileInput style="display: none;" accept="image/*">
       <button class="edit-avatar-btn" (click)="fileInput.click()" *ngIf="canEdit()">
         <span class="material-icons">edit</span>
@@ -63,14 +60,13 @@
   <!-- Personal Information Tab -->
   <div class="tab-content" *ngIf="activeTab === 'personal'">
     <div class="card">
-      <div class="card-header">
-        <h2>Personal Information</h2>
-        <button class="btn btn-primary" (click)="updateProfile()" [disabled]="loading">
-          {{ loading ? 'Updating...' : 'Update Profile' }}
-        </button>
-      </div>
-      
-      <form [formGroup]="profileForm" class="profile-form">
+      <form [formGroup]="personalInfoForm" class="profile-form">
+        <div class="card-header">
+          <h2>Personal Information</h2>
+          <button class="btn btn-primary" (click)="updatePersonalInfo()" [disabled]="loading || !canEditPersonalInfo()">
+            {{ loading ? 'Updating...' : 'Update Personal Info' }}
+          </button>
+        </div>
         <div class="form-section">
           <h3>Basic Information</h3>
           <div class="form-row">
@@ -162,9 +158,18 @@
             <textarea formControlName="temporaryAddress" class="form-control" rows="3"></textarea>
           </div>
         </div>
+      </form>
+    </div>
 
+    <div class="card">
+      <form [formGroup]="professionalInfoForm" class="profile-form">
+        <div class="card-header">
+          <h2>Professional Information</h2>
+          <button class="btn btn-primary" (click)="updateProfessionalInfo()" [disabled]="loading || !canEditProfessionalInfo()">
+            {{ loading ? 'Updating...' : 'Update Professional Info' }}
+          </button>
+        </div>
         <div class="form-section">
-          <h3>Professional Information</h3>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Username</label>

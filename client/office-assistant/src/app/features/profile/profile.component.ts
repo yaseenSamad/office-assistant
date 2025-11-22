@@ -56,7 +56,8 @@ export class ProfileComponent implements OnInit {
   activeTab: 'personal' | 'education' | 'experience' = 'personal';
 
   // Form Groups
-  profileForm!: FormGroup;
+  personalInfoForm!: FormGroup;
+  professionalInfoForm!: FormGroup;
   educationForm!: FormGroup;
   experienceForm!: FormGroup;
   passwordResetForm!: FormGroup;
@@ -129,7 +130,7 @@ export class ProfileComponent implements OnInit {
   }
 
   initializeForms(): void {
-    this.profileForm = this.formBuilder.group({
+    this.personalInfoForm = this.formBuilder.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       dob: ['', Validators.required],
@@ -144,6 +145,9 @@ export class ProfileComponent implements OnInit {
       linkedin: [''],
       permanentAddress: ['', Validators.required],
       temporaryAddress: [''],
+    });
+
+    this.professionalInfoForm = this.formBuilder.group({
       username: [{ value: '', disabled: true }],
       role: ['', Validators.required],
       department: ['', Validators.required],
@@ -223,7 +227,7 @@ export class ProfileComponent implements OnInit {
   }
 
   populateProfileForm(user: any): void {
-    this.profileForm.patchValue({
+    this.personalInfoForm.patchValue({
       firstName: user.firstName,
       lastName: user.lastName,
       dob: user.dob,
@@ -238,6 +242,9 @@ export class ProfileComponent implements OnInit {
       linkedin: user.linkedin,
       permanentAddress: user.permanentAddress,
       temporaryAddress: user.temporaryAddress,
+    });
+
+    this.professionalInfoForm.patchValue({
       username: user.username,
       role: user.role?.toUpperCase(),
       department: user.department?.itemCode || '',
@@ -246,28 +253,39 @@ export class ProfileComponent implements OnInit {
       reporter: user.reporter
     });
 
-    if (!this.canEdit()) {
-      this.profileForm.disable();
+    if (!this.canEditPersonalInfo()) {
+      this.personalInfoForm.disable();
+    }
+    if (!this.canEditProfessionalInfo()) {
+      this.professionalInfoForm.disable();
     }
   }
 
-  updateProfile(): void {
-    if (this.profileForm.invalid) {
-      this.toastr.error('Please fill all required fields correctly.');
+  updatePersonalInfo(): void {
+    if (this.personalInfoForm.invalid) {
+      this.toastr.error('Please fill all required personal information fields correctly.');
       return;
     }
+    this.updateProfile(this.personalInfoForm.getRawValue());
+  }
 
-    this.loading = true;
-    const userId = this.user()?.userId;
-    if (!userId) return;
-
-    const formValue = this.profileForm.getRawValue();
-    
-    // Format department as JSON object
+  updateProfessionalInfo(): void {
+    if (this.professionalInfoForm.invalid) {
+      this.toastr.error('Please fill all required professional information fields correctly.');
+      return;
+    }
+    const formValue = this.professionalInfoForm.getRawValue();
     const selectedDept = this.departments.find(d => d.itemCode === formValue.department);
     if (selectedDept) {
       formValue.department = selectedDept;
     }
+    this.updateProfile(formValue);
+  }
+
+  updateProfile(formValue: any): void {
+    this.loading = true;
+    const userId = this.user()?.userId;
+    if (!userId) return;
 
     this.userService.updateUser(userId, formValue).subscribe({
       next: (res: any) => {
@@ -312,8 +330,26 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  canEdit(): boolean {
-    return this.authService.isAdminOrHR();
+  // canEdit(): boolean {
+  //   return this.authService.isAdminOrHR();
+  // }
+
+  canEditPersonalInfo(): boolean {
+    return this.isOwnProfile();
+  }
+
+  canEditProfessionalInfo(): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !this.user()) {
+      return false;
+    }
+    if (currentUser?.role?.toUpperCase() === 'ADMIN') {
+      return true;
+    }
+    if (currentUser?.role?.toUpperCase() === 'HR' && this.user()?.role?.toUpperCase() !== 'HR') {
+      return true;
+    }
+    return false;
   }
 
   isOwnProfile(): boolean {
@@ -531,7 +567,11 @@ export class ProfileComponent implements OnInit {
     if (user?.profilePicture) {
       return `http://localhost:5000${user.profilePicture}`;
     }
-    return '';
+    return 'assets/default-avatar.png';
+  }
+
+  canEdit(): boolean {
+    return this.isOwnProfile();
   }
 
   getDepartmentName(departmentCode: string): string {
