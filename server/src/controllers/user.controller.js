@@ -82,8 +82,38 @@ exports.getUserById = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const result = await User.destroy({ where: { userId: req.params.id } });
+    const requestingUser = req.user;
+    const targetUserId = req.params.id;
+
+    if (requestingUser.userId === targetUserId) {
+      return errorResponse(res, "You cannot delete your own account.", 403);
+    }
+
+    const targetUser = await User.findByPk(targetUserId);
+    if (!targetUser) {
+      return errorResponse(res, "User not found", 404);
+    }
+
+    const requesterRole = requestingUser.role.toUpperCase();
+    const targetRole = targetUser.role.toUpperCase();
+
+    const canDelete = () => {
+      if (requesterRole === 'ADMIN') {
+        return true; 
+      }
+      if (requesterRole === 'HR' && targetRole === 'EMPLOYEE') {
+        return true;
+      }
+      return false;
+    };
+
+    if (!canDelete()) {
+      return errorResponse(res, "You are not authorized to delete this user.", 403);
+    }
+
+    const result = await User.destroy({ where: { userId: targetUserId } });
     if (!result) return errorResponse(res, "User not found", 404);
+
     return successResponse(res, "User deleted successfully");
   } catch (err) {
     return errorResponse(res, err);

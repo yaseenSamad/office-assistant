@@ -379,6 +379,46 @@ export class ProfileComponent implements OnInit {
     return this.canEditProfessionalInfo(); // Delegate to the same logic
   }
 
+  canDeleteUser(): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !this.user()) {
+      return false;
+    }
+
+    if (currentUser.userId === this.user()!.userId) {
+      return false;
+    }
+    
+    const requesterRole = currentUser.role.toUpperCase();
+    const targetRole = this.user()!.role.toUpperCase();
+
+    if (requesterRole === 'ADMIN') {
+      return true;
+    }
+    if (requesterRole === 'HR' && targetRole === 'EMPLOYEE') {
+      return true;
+    }
+
+    return false;
+  }
+
+  deleteUser(): void {
+    if (!this.user()) return;
+
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      this.userService.deleteUser(this.user()!.userId).subscribe({
+        next: () => {
+          this.toastr.success('User deleted successfully');
+          this.router.navigate(['/employees']);
+        },
+        error: (error) => {
+          console.error('Error deleting user:', error);
+          this.toastr.error('Failed to delete user.');
+        }
+      });
+    }
+  }
+
   isOwnProfile(): boolean {
     const currentUser = this.authService.getCurrentUser();
     return currentUser?.userId === this.user()?.userId;

@@ -211,8 +211,9 @@
               </select>
             </div>
           </div>
-          <div class="form-group" *ngIf="canResetPassword()">
-            <button type="button" class="btn btn-outline" (click)="openPasswordResetModal()">Reset Password</button>
+          <div class="form-group" *ngIf="canResetPassword() || canDeleteUser()">
+            <button type="button" class="btn btn-outline" (click)="openPasswordResetModal()" *ngIf="canResetPassword()">Reset Password</button>
+            <button type="button" class="btn btn-outline ml-2" (click)="deleteUser()" *ngIf="canDeleteUser()">Delete User</button>
           </div>
         </div>
       </form>

@@ -288,6 +288,9 @@ button {
 .m-3{
   margin: var(--space-3);
 }
+.ml-2{
+  margin-left: var(--space-2);;
+}
 
 /* Responsive display utilities */
 @media (max-width: 768px) {
