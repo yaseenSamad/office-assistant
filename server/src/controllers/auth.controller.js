@@ -52,17 +52,46 @@ exports.login = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { userId, newPassword } = req.body;
+    const { userId: targetUserId, newPassword } = req.body;
+    const requestingUser = req.user;
 
-    if (!userId || !newPassword) {
+    if (!targetUserId || !newPassword) {
       return errorResponse(res, "Missing required fields", 400);
+    }
+
+    const targetUser = await User.findByPk(targetUserId);
+    if (!targetUser) {
+      return errorResponse(res, "Target user not found", 404);
+    }
+
+    const canReset = () => {
+      if (requestingUser.userId === targetUser.userId) {
+        return true;
+      }
+      
+      const requesterRole = requestingUser.role.toUpperCase();
+      const targetRole = targetUser.role.toUpperCase();
+
+      if (requesterRole === 'ADMIN') {
+        return true;
+      }
+
+      if (requesterRole === 'HR' && targetRole === 'EMPLOYEE') {
+        return true;
+      }
+      
+      return false;
+    };
+
+    if (!canReset()) {
+      return errorResponse(res, "You are not authorized to perform this action", 403);
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await User.update(
       { password: hashedPassword },
-      { where: { userId } }
+      { where: { userId: targetUserId } }
     );
 
     return successResponse(res, "Password reset successfully");

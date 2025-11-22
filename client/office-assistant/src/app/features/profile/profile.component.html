@@ -63,7 +63,7 @@
       <form [formGroup]="personalInfoForm" class="profile-form">
         <div class="card-header">
           <h2>Personal Information</h2>
-          <button class="btn btn-primary" (click)="updatePersonalInfo()" [disabled]="loading || !canEditPersonalInfo()">
+          <button class="btn btn-primary" *ngIf="canEdit()" (click)="updatePersonalInfo()" [disabled]="loading || !canEditPersonalInfo()">
             {{ loading ? 'Updating...' : 'Update Personal Info' }}
           </button>
         </div>
@@ -165,7 +165,7 @@
       <form [formGroup]="professionalInfoForm" class="profile-form">
         <div class="card-header">
           <h2>Professional Information</h2>
-          <button class="btn btn-primary" (click)="updateProfessionalInfo()" [disabled]="loading || !canEditProfessionalInfo()">
+          <button class="btn btn-primary" (click)="updateProfessionalInfo()" *ngIf="canEditProfessionalInfo()" [disabled]="loading || !canEditProfessionalInfo()">
             {{ loading ? 'Updating...' : 'Update Professional Info' }}
           </button>
         </div>
@@ -211,7 +211,7 @@
               </select>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" *ngIf="canResetPassword()">
             <button type="button" class="btn btn-outline" (click)="openPasswordResetModal()">Reset Password</button>
           </div>
         </div>
@@ -224,7 +224,7 @@
     <div class="card">
       <div class="card-header">
         <h2>Education</h2>
-        <button class="btn btn-primary" (click)="openEducationModal()">
+        <button class="btn btn-primary" (click)="openEducationModal()" *ngIf="canEdit()">
           <span class="material-icons">add</span>
           Add Education
         </button>
@@ -238,7 +238,7 @@
           <div class="education-content">
             <div class="education-header">
               <h3>{{ education.course }}</h3>
-              <div class="education-actions">
+              <div class="education-actions" *ngIf="canEdit()">
                 <button class="action-btn" (click)="openEducationModal(education)">
                   <span class="material-icons">edit</span>
                 </button>
@@ -263,7 +263,7 @@
         <span class="material-icons">school</span>
         <h3>No Education Records</h3>
         <p>Add your educational background to complete your profile.</p>
-        <button class="btn btn-primary" (click)="openEducationModal()">Add Education</button>
+        <button class="btn btn-primary" (click)="openEducationModal()" *ngIf="canEdit()">Add Education</button>
       </div>
     </div>
   </div>
@@ -273,7 +273,7 @@
     <div class="card">
       <div class="card-header">
         <h2>Work Experience</h2>
-        <button class="btn btn-primary" (click)="openExperienceModal()">
+        <button class="btn btn-primary" (click)="openExperienceModal()" *ngIf="canEdit()">
           <span class="material-icons">add</span>
           Add Experience
         </button>
@@ -290,7 +290,7 @@
                 <h3>{{ experience.title }}</h3>
                 <p class="experience-company">{{ experience.company }}</p>
               </div>
-              <div class="experience-actions">
+              <div class="experience-actions" *ngIf="canEdit()">
                 <span class="current-badge" *ngIf="experience.currentWorkStatus">Current</span>
                 <button class="action-btn" (click)="openExperienceModal(experience)">
                   <span class="material-icons">edit</span>
@@ -320,7 +320,7 @@
         <span class="material-icons">work</span>
         <h3>No Work Experience</h3>
         <p>Add your work experience to showcase your professional journey.</p>
-        <button class="btn btn-primary" (click)="openExperienceModal()">Add Experience</button>
+        <button class="btn btn-primary" (click)="openExperienceModal()" *ngIf="canEdit()">Add Experience</button>
       </div>
     </div>
   </div>

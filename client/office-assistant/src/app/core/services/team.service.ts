@@ -13,6 +13,11 @@ export class TeamService {
     return this.http.get<any>('/api/teams').pipe(map((res) => res));
   }
 
+  // Get a single team by its ID
+  getTeamById(teamId: string): Observable<any> {
+    return this.http.get<any>(`/api/teams/${teamId}`).pipe(map((res) => res));
+  }
+
   createTeam(teamData: any): Observable<any> {
     return this.http.post<any>('/api/teams', teamData).pipe(map((res) => res));
   }

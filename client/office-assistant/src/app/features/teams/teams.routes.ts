@@ -6,5 +6,9 @@ export const TEAMS_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./team-list/team-list.component').then(c => c.TeamListComponent)
+  },
+  {
+    path: ':id/members',
+    loadComponent: () => import('../employees/employee-list/employee-list.component').then(c => c.EmployeeListComponent)
   }
 ];

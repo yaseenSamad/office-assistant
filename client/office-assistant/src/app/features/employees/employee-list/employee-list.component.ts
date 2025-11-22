@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router'; // Import Router
+import { RouterLink, Router, ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
+import { forkJoin } from 'rxjs';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User, UserRole } from '../../../core/models/user.model';
@@ -15,7 +16,7 @@ import { commonService } from '../../../core/services/common.service';
   template: `
     <div class="employees-container">
       <!-- Header Section -->
-      <div class="employees-header">
+      <div class="employees-header" *ngIf="!isTeamView">
         <div class="header-content">
           <h1>Employees</h1>
           <p>Manage and view all company employees</p>
@@ -41,9 +42,16 @@ import { commonService } from '../../../core/services/common.service';
           </select>
         </div>
       </div>
+       <div class="employees-header" *ngIf="isTeamView">
+        <div class="header-content">
+          <h1>{{ teamName }}</h1>
+          <p>Members of the team</p>
+        </div>
+      </div>
+
 
       <!-- Employee Stats -->
-      <div class="employee-stats">
+      <div class="employee-stats" *ngIf="!isTeamView">
         <div class="stat-card">
           <div class="stat-number">{{ employees().length }}</div>
           <div class="stat-label">Total Employees</div>
@@ -78,7 +86,7 @@ import { commonService } from '../../../core/services/common.service';
                 {{ employee?.designation }}
               </div>
               <div class="employee-department">
-                {{ employee?.department.itemName }}
+                {{ employee?.department?.itemName }}
               </div>
             </div>
             
@@ -385,7 +393,8 @@ export class EmployeeListComponent implements OnInit {
   private authService = inject(AuthService);
   private teamService = inject(TeamService)
   private commonService = inject(commonService)
-  private router = inject(Router); // Inject Router
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   employees = signal<User[]>([]);
   filteredEmployees = signal<User[]>([]);
@@ -394,11 +403,47 @@ export class EmployeeListComponent implements OnInit {
   selectedRole = '';
   departments: any[] = [];
   rolesList: any[] = [];
+  isTeamView = false;
+  teamName = '';
+
 
   ngOnInit(): void {
-    this.loadEmployees();
-    this.departments = this.commonService.departmentList
-    this.rolesList = this.commonService.rolesList
+    const teamId = this.route.snapshot.paramMap.get('id');
+    if (teamId) {
+      this.isTeamView = true;
+      this.loadTeamMembers(teamId);
+    } else {
+      this.isTeamView = false;
+      this.loadEmployees();
+    }
+    this.departments = this.commonService.departmentList;
+    this.rolesList = this.commonService.rolesList;
+  }
+
+  loadTeamMembers(teamId: string): void {
+    forkJoin({
+      team: this.teamService.getTeamById(teamId),
+      users: this.userService.getAllUsers()
+    }).subscribe({
+      next: ({ team, users }) => {
+        if (team.data && team.statusCode === 200 && users.data && users.statusCode === 200) {
+          this.teamName = team.data.teamName;
+          const memberIds = new Set(team.data.members.map((member: any) => member.userId));
+          const teamMembers = users.data.filter((user: User) => memberIds.has(user.userId));
+          
+          this.employees.set(teamMembers);
+          this.filteredEmployees.set(teamMembers);
+        } else {
+          this.employees.set([]);
+          this.filteredEmployees.set([]);
+        }
+      },
+      error: (error) => {
+        this.employees.set([]);
+        this.filteredEmployees.set([]);
+        console.error('Error loading team members:', error);
+      }
+    });
   }
 
   loadEmployees(): void {

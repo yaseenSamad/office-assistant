@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router'; // Import Router
 import { TeamService } from '../../../core/services/team.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,7 +12,7 @@ import { AddMembersRequest, CreateTeamRequest, Team } from '../../../core/models
 @Component({
   selector: 'app-team-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink], // Add RouterLink
   templateUrl: './team-list.component.html',
   styleUrls: ['./team-list.component.scss']
 })
@@ -22,6 +22,7 @@ export class TeamListComponent implements OnInit {
   private authService = inject(AuthService);
   private formBuilder = inject(FormBuilder);
   private toastr = inject(ToastrService);
+  private router = inject(Router); // Inject Router
 
   teams = signal<Team[]>([]);
   users = signal<User[]>([]);
@@ -61,6 +62,10 @@ export class TeamListComponent implements OnInit {
     });
   }
 
+  viewTeam(teamId: string): void {
+    this.router.navigate(['/teams', teamId, 'members']);
+  }
+  
   loadUsers(): void {
     this.userService.getAllUsers().subscribe({
       next: (response) => {

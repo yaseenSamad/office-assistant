@@ -29,17 +29,17 @@
 
   <div class="teams-content">
     <div class="teams-grid" *ngIf="teams().length > 0">
-      <div class="team-card" *ngFor="let team of teams()">
+      <div class="team-card" *ngFor="let team of teams()" (click)="viewTeam(team.teamId)">
         <div class="team-header">
           <div class="team-info">
             <h3 class="team-name">{{ team.teamName }}</h3>
             <p class="team-description" *ngIf="team.description">{{ team.description }}</p>
           </div>
           <div class="team-actions" *ngIf="canManageTeam()">
-            <button class="action-btn edit-btn" (click)="editTeam(team)" title="Edit Team">
+            <button class="action-btn edit-btn" (click)="editTeam(team); $event.stopPropagation();" title="Edit Team">
               <span class="material-icons">edit</span>
             </button>
-            <button class="action-btn delete-btn" (click)="deleteTeam(team)" title="Delete Team">
+            <button class="action-btn delete-btn" (click)="deleteTeam(team); $event.stopPropagation();" title="Delete Team">
               <span class="material-icons">delete</span>
             </button>
           </div>
@@ -51,7 +51,7 @@
             <button 
               class="btn btn-sm btn-outline" 
               *ngIf="canManageTeam()"
-              (click)="openMembersModal(team)"
+              (click)="openMembersModal(team); $event.stopPropagation();"
             >
               Manage Members
             </button>

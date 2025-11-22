@@ -355,13 +355,28 @@ export class ProfileComponent implements OnInit {
     if (!currentUser || !this.user()) {
       return false;
     }
-    if (currentUser?.role?.toUpperCase() === 'ADMIN') {
+    const requesterRole = currentUser.role.toUpperCase();
+    const targetRole = this.user()!.role.toUpperCase();
+
+    if (requesterRole === 'ADMIN') {
       return true;
     }
-    if (currentUser?.role?.toUpperCase() === 'HR' && this.user()?.role?.toUpperCase() !== 'HR') {
+    if (requesterRole === 'HR' && targetRole === 'EMPLOYEE') {
       return true;
     }
     return false;
+  }
+
+  canResetPassword(): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !this.user()) {
+      return false;
+    }
+    // A user can always reset their own password
+    if (currentUser.userId === this.user()?.userId) {
+      return true;
+    }
+    return this.canEditProfessionalInfo(); // Delegate to the same logic
   }
 
   isOwnProfile(): boolean {
