@@ -68,6 +68,10 @@ export const APP_ROUTES: Routes = [
         path: 'employees/:id',
         loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)
       },
+      {
+        path: 'payroll',
+        loadChildren: () => import('./features/payroll/payroll.routes').then(m => m.PAYROLL_ROUTES),
+      },
       // {
       //   path: 'profile',
       //   loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent)

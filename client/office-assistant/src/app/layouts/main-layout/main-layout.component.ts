@@ -190,6 +190,14 @@ import { User, UserRole } from '../../core/models/user.model';
       margin-right: var(--space-3);
     }
 
+    .sidebar-heading {
+      padding: var(--space-3) var(--space-4) var(--space-1);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      color: var(--neutral-500);
+      text-transform: uppercase;
+    }
+
     .app-content {
       flex: 1;
       overflow-y: auto;

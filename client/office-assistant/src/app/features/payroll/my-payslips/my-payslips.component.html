@@ -1,0 +1,37 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h2>My Payslips</h2>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading()" class="text-center">
+        <p>Loading payslips...</p>
+      </div>
+      <div *ngIf="!loading() && payslips().length === 0" class="text-center">
+        <p>No payslips have been generated for you yet.</p>
+      </div>
+      <table *ngIf="!loading() && payslips().length > 0" class="table table-hover">
+        <thead>
+          <tr>
+            <th>Pay Period</th>
+            <th>Generation Date</th>
+            <th>Net Salary</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let payslip of payslips()">
+            <td>{{ payslip.payPeriodStart | date: 'MMM d, y' }} - {{ payslip.payPeriodEnd | date: 'MMM d, y' }}</td>
+            <td>{{ payslip.createdAt | date: 'MMM d, y' }}</td>
+            <td>{{ payslip.netSalary | currency:'USD' }}</td>
+            <td><span class="badge" [class.bg-success]="payslip.status === 'paid'" [class.bg-warning]="payslip.status !== 'paid'">{{ payslip.status }}</span></td>
+            <td>
+              <a [routerLink]="['/payroll/payslips', payslip.payslipId]" class="btn btn-sm btn-primary">View Details</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

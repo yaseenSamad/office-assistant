@@ -98,6 +98,19 @@
                 </a>
               </li>
 
+              <li>
+                <a routerLink="/payroll/my-payslips" routerLinkActive="active">
+                  <span class="material-icons">receipt_long</span>
+                  My Payslips
+                </a>
+              </li>
+              <li *ngIf="canRegister()">
+                <a routerLink="/payroll/run" routerLinkActive="active">
+                  <span class="material-icons">payments</span>
+                  Run Payroll
+                </a>
+              </li>
+
               <li *ngIf="canRegister()">
                 <a routerLink="/register" routerLinkActive="active">
                   <span class="material-icons">person_add</span>

@@ -1,0 +1,73 @@
+<div class="container-fluid">
+  <div *ngIf="loading()" class="text-center">
+    <p>Loading payslip details...</p>
+  </div>
+
+  <div *ngIf="!loading() && !payslip()">
+    <p class="text-center">Could not load payslip details.</p>
+  </div>
+
+  <div *ngIf="payslip() as p" class="payslip-container">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Payslip</h2>
+        <button class="btn btn-primary print-button" (click)="printPayslip()">Print</button>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-6">
+            <h4><strong>Company Inc.</strong></h4>
+            <p>123 Business Rd.<br>Business City, 12345</p>
+          </div>
+          <div class="col-6 text-end">
+            <h4>Payslip #{{ p.payslipId.substring(0, 8) }}</h4>
+            <p><strong>Pay Period:</strong> {{ p.payPeriodStart | date: 'MMM d, y' }} - {{ p.payPeriodEnd | date: 'MMM d, y' }}</p>
+            <p><strong>Generation Date:</strong> {{ p.createdAt | date: 'MMM d, y' }}</p>
+            <p><strong>Status:</strong> <span class="badge" [class.bg-success]="p.status === 'paid'" [class.bg-warning]="p.status !== 'paid'">{{ p.status }}</span></p>
+          </div>
+        </div>
+
+        <div class="employee-details mb-4">
+          <h5><strong>Employee Details</strong></h5>
+          <p><strong>Name:</strong> {{ p.user?.firstName }} {{ p.user?.lastName }}</p>
+          <p><strong>Designation:</strong> {{ p.user?.designation }}</p>
+          <p><strong>Department:</strong> {{ p.user?.department }}</p>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Earnings</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Gross Salary</td>
+              <td class="text-end">{{ p.grossSalary | currency:'USD' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Deductions</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tax (10%)</td>
+              <td class="text-end">{{ p.deductions | currency:'USD' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="net-pay-section text-end">
+          <h3>Net Salary: {{ p.netSalary | currency:'USD' }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

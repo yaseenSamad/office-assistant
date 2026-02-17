@@ -1,0 +1,35 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h2>Run Payroll</h2>
+      <p>Select a pay period to calculate and generate payslips for all eligible employees.</p>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="payrollForm" (ngSubmit)="runPayroll()">
+        <div class="row">
+          <div class="col-md-5">
+            <div class="form-group">
+              <label for="payPeriodStart">Pay Period Start</label>
+              <input type="date" id="payPeriodStart" class="form-control" formControlName="payPeriodStart">
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="form-group">
+              <label for="payPeriodEnd">Pay Period End</label>
+              <input type="date" id="payPeriodEnd" class="form-control" formControlName="payPeriodEnd">
+            </div>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100" [disabled]="payrollForm.invalid || loading">
+              <span *ngIf="!loading">Run Payroll</span>
+              <span *ngIf="loading">Running...</span>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="payrollForm.invalid && payrollForm.touched" class="text-danger small mt-2">
+          Please select both a start and end date for the pay period.
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

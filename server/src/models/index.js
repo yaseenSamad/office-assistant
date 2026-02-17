@@ -15,6 +15,8 @@ const LeaveRequest = require("./leaveRequest.model")(sequelize, DataTypes);
 const Attendance = require("./attendance.model")(sequelize, DataTypes);
 const WorkExperience = require("./work_experience.model")(sequelize, DataTypes);
 const Education = require("./education.model")(sequelize, DataTypes);
+const Salary = require("./salary.model")(sequelize, DataTypes);
+const Payslip = require("./payslip.model")(sequelize, DataTypes);
 
 // Associations
 // User -> Reporter (self-reference)
@@ -76,6 +78,14 @@ WorkExperience.belongsTo(User, { foreignKey: "userId", as: "user", onDelete: "CA
 User.hasMany(Education, { foreignKey: "userId", as: "educations", onDelete: "CASCADE" });
 Education.belongsTo(User, { foreignKey: "userId", as: "user", onDelete: "CASCADE" });
 
+// User -> Salary (1:1)
+User.hasOne(Salary, { foreignKey: "userId", as: "salary", onDelete: "CASCADE" });
+Salary.belongsTo(User, { foreignKey: "userId", as: "user", onDelete: "CASCADE" });
+
+// User -> Payslip (1:M)
+User.hasMany(Payslip, { foreignKey: "userId", as: "payslips", onDelete: "CASCADE" });
+Payslip.belongsTo(User, { foreignKey: "userId", as: "user", onDelete: "CASCADE" });
 
 
-module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType,Attendance, WorkExperience, Education };
+
+module.exports = { sequelize,User,Team,TeamMember,Policy,Holiday,Post,Like,Comment,LeaveRequest,LeaveType,Attendance, WorkExperience, Education, Salary, Payslip };

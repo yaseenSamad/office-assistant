@@ -55,6 +55,15 @@
       <span class="material-icons">work</span>
       Experience
     </button>
+    <button 
+      *ngIf="canManageSalary()"
+      class="nav-tab" 
+      [class.active]="activeTab === 'salary'"
+      (click)="setActiveTab('salary')"
+    >
+      <span class="material-icons">paid</span>
+      Salary
+    </button>
   </div>
 
   <!-- Personal Information Tab -->
@@ -323,6 +332,40 @@
         <p>Add your work experience to showcase your professional journey.</p>
         <button class="btn btn-primary" (click)="openExperienceModal()" *ngIf="canEdit()">Add Experience</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Salary Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'salary' && canManageSalary()">
+    <div class="card">
+      <form [formGroup]="salaryForm" (ngSubmit)="saveSalary()" class="profile-form">
+        <div class="card-header">
+          <h2>Salary Information</h2>
+        </div>
+        <div class="form-section">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="amount" class="form-label">Amount (USD)</label>
+              <input type="number" id="amount" class="form-control" formControlName="amount">
+              <div *ngIf="salaryForm.get('amount')?.invalid && salaryForm.get('amount')?.touched" class="text-danger small mt-1">
+                A valid, positive amount is required.
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="payType" class="form-label">Pay Type</label>
+              <select id="payType" class="form-control" formControlName="payType">
+                <option value="monthly">Monthly</option>
+                <option value="hourly">Hourly</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" [disabled]="salaryForm.invalid || loading">
+              {{ salary() ? 'Update' : 'Set' }} Salary
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 </div>

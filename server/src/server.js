@@ -15,6 +15,8 @@ const leaveRoutes = require("./routes/leave.routes")
 const attendanceRoutes = require("./routes/attendance.routes")
 const workExperienceRoutes = require("./routes/work_experience.routes");
 const educationRoutes = require("./routes/education.routes");
+const salaryRoutes = require("./routes/salary.routes");
+const payrollRoutes = require("./routes/payroll.routes");
 
 // const attendanceRoutes = require("./routes/attendance.routes");
 // const leaveRoutes = require("./routes/leave.routes");
@@ -43,6 +45,8 @@ app.use("/api/leaves", leaveRoutes);
 app.use("/api/attendance",attendanceRoutes );
 app.use("/api/work-experience", workExperienceRoutes);
 app.use("/api/education", educationRoutes);
+app.use("/api/salaries", salaryRoutes);
+app.use("/api/payroll", payrollRoutes);
 
 // app.use("/api/attendance", attendanceRoutes);
 // const leaveRoutes = require("./routes/leave.routes");

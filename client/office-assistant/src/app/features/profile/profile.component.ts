@@ -10,6 +10,8 @@ import { EducationService } from '../../core/services/education.service';
 import { WorkExperienceService } from '../../core/services/work_experience.service';
 import { User } from '../../core/models/user.model';
 import moment from 'moment';
+import { PayrollService } from '../../core/services/payroll.service';
+import { Salary } from '../../core/models/salary.model';
 
 interface Education {
   courseId?: string;
@@ -51,10 +53,12 @@ export class ProfileComponent implements OnInit {
   private workExperienceService = inject(WorkExperienceService);
   private educationService = inject(EducationService);
   private router = inject(Router); // Inject Router
+  private payrollService = inject(PayrollService);
 
   user = signal<User | null>(null);
+  salary = signal<Salary | null>(null);
   loading = false;
-  activeTab: 'personal' | 'education' | 'experience' = 'personal';
+  activeTab: 'personal' | 'education' | 'experience' | 'salary' = 'personal';
 
   // Form Groups
   personalInfoForm!: FormGroup;
@@ -62,6 +66,7 @@ export class ProfileComponent implements OnInit {
   educationForm!: FormGroup;
   experienceForm!: FormGroup;
   passwordResetForm!: FormGroup;
+  salaryForm!: FormGroup;
 
   // Data for dropdowns
   genders = ['Male', 'Female', 'Other'];
@@ -193,6 +198,11 @@ export class ProfileComponent implements OnInit {
       description: ['', Validators.required],
       skills: ['']
     });
+
+    this.salaryForm = this.formBuilder.group({
+      amount: [null, [Validators.required, Validators.min(0)]],
+      payType: ['monthly', Validators.required]
+    });
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -225,6 +235,7 @@ export class ProfileComponent implements OnInit {
           this.populateProfileForm(res.data);
           this.educationList = res.data.educations || [];
           this.experienceList = res.data.workExperiences || [];
+          this.loadUserSalary(userId);
         } else {
           this.toastr.error('Failed to load user profile.');
         }
@@ -430,6 +441,48 @@ export class ProfileComponent implements OnInit {
 
   getInitials(firstName?: string, lastName?: string): string {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+  }
+
+  canManageSalary(): boolean {
+   return this.authService.isAdminOrHR()
+  }
+
+  loadUserSalary(userId: string): void { 
+    if (!this.canManageSalary()) return;
+
+    this.payrollService.getSalary(userId).subscribe({
+      next: (salary) => {
+        this.salary.set(salary);
+        this.salaryForm.patchValue({
+          amount: salary.amount,
+          payType: salary.payType
+        });
+      },
+      error: () => {
+        this.salary.set(null);
+        this.salaryForm.reset({ payType: 'monthly' });
+      }
+    });
+  }
+
+  saveSalary(): void {
+    if (this.salaryForm.invalid || !this.user()) {
+      this.toastr.error('Please fill all required salary fields correctly.');
+      return;
+    }
+    const userId = this.user()!.userId;
+    const salaryData = this.salaryForm.value;
+
+    this.payrollService.createOrUpdateSalary(userId, salaryData).subscribe({
+      next: (updatedSalary) => {
+        this.toastr.success('Salary updated successfully!');
+        this.salary.set(updatedSalary);
+      },
+      error: (err) => {
+        this.toastr.error('Failed to update salary.');
+        console.error(err);
+      }
+    });
   }
 
   formatDate(date: string | null): string {
