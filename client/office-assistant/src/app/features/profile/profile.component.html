@@ -216,7 +216,7 @@
               <label class="form-label">Reporter</label>
               <select formControlName="reporter" class="form-control">
                 <option value="">Select Reporter</option>
-                <option *ngFor="let user of users" [value]="user.userId">{{ user.firstName }} {{ user.lastName }}</option>
+                <option *ngFor="let user of users" [value]="user.userId">{{ user.firstName }} {{ user.lastName }} ({{ user.role }})</option>
               </select>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription, interval } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
+import { LeaveService } from '../../core/services/leave.service';
 
 interface AttendanceRecord {
   attendanceDate: string;
@@ -35,6 +36,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   selectedUserId = '';
   allUsers: any[] = [];
   loggedInUserId = '';
+  leaves: any[] = [];
 
   private timerSub?: Subscription;
   private clockInStartTime?: moment.Moment;
@@ -42,7 +44,8 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   constructor(
     public authService: AuthService,
     private attendanceService: AttendanceService,
-    private userService: UserService
+    private userService: UserService,
+    private leaveService: LeaveService
   ) {}
 
   ngOnInit(): void {
@@ -96,6 +99,15 @@ export class AttendanceComponent implements OnInit, OnDestroy {
       startDate: this.startDate,
       endDate: this.endDate,
     };
+
+    this.leaveService.getMyLeaves(this.selectedUserId).subscribe({
+      next: (res) => {
+        if (res.statusCode === 200) {
+          this.leaves = res.data || [];
+        }
+      },
+      error: (err) => console.error('Error loading leaves for attendance:', err)
+    });
 
     this.attendanceService.getAttendance(payload).subscribe({
       next: (res) => {
@@ -229,5 +241,14 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   isWeekend(date: string): boolean {
     const day = moment(date).day();
     return day === 6 || day === 0;
+  }
+
+  isOnLeave(dateStr: string): boolean {
+    const date = moment(dateStr);
+    return this.leaves.some(leave => 
+      leave.status === 'Approved' &&
+      moment(leave.startDate).startOf('day').isSameOrBefore(date) &&
+      moment(leave.endDate).endOf('day').isSameOrAfter(date)
+    );
   }
 }

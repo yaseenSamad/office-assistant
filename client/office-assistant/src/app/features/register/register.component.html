@@ -143,8 +143,9 @@
         <!-- Reporter -->
         <div class="col-md-6 form-group">
           <label>Reporter *</label>
-          <select formControlName="reporterId">
-            <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }}</option>
+          <select formControlName="reporter">
+            <option value="">Select Reporter</option>
+            <option *ngFor="let emp of employees" [value]="emp.userId">{{ emp.firstName }} {{ emp.lastName }} ({{ emp.role }})</option>
           </select>
         </div>
 

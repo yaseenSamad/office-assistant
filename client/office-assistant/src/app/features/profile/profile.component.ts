@@ -217,7 +217,10 @@ export class ProfileComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (res) => {
         if (res.statusCode === 200) {
-          this.users = res.data || [];
+          const allUsers = res.data || [];
+          this.users = allUsers.filter((u: any) => 
+            u.role?.toUpperCase() === 'ADMIN' || u.role?.toUpperCase() === 'HR'
+          );
         }
       },
       error: (error) => {

@@ -99,10 +99,13 @@
             <td>{{ formatTime(rec.clockOutTime) }}</td>
             <td>{{ rec.effectiveHours }}</td>
             <td>
-              <ng-container *ngIf="isWeekend(rec.attendanceDate)">
+              <ng-container *ngIf="isOnLeave(rec.attendanceDate)">
+                <span class="badge badge-warning">On Leave</span>
+              </ng-container>
+              <ng-container *ngIf="!isOnLeave(rec.attendanceDate) && isWeekend(rec.attendanceDate)">
                 <span class="badge badge-accent">Off Day</span>
               </ng-container>
-              <ng-container *ngIf="!isWeekend(rec.attendanceDate)">
+              <ng-container *ngIf="!isOnLeave(rec.attendanceDate) && !isWeekend(rec.attendanceDate)">
                 <ng-container *ngIf="rec.isManualOut === null">-</ng-container>
                 <ng-container *ngIf="rec.isManualOut === true">
                   <span class="badge badge-success">Manual</span>

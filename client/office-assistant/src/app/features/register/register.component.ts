@@ -20,11 +20,7 @@ export class RegisterProfileComponent implements OnInit {
   departments = ['IT Department', 'HR Department', 'Managing Department'];
   subDepartments = ['Sub A', 'Sub B', 'Sub C'];
   roles = ['Employee', 'HR'];
-  employees = [
-    { id: 1, name: 'HR Admin' },
-    { id: 2, name: 'John Doe' },
-    { id: 3, name: 'Alice Smith' }
-  ];
+  employees: any[] = [];
   showPassword = false;
 
   constructor(private fb: FormBuilder, private toastr: ToastrService,private userService: UserService) {}
@@ -52,7 +48,18 @@ export class RegisterProfileComponent implements OnInit {
       subDepartment: ['Sub A', Validators.required],
       role: ['Employee', Validators.required],
       designation: ['', Validators.required],
-      reporterId: [1, Validators.required]
+      reporter: ['', Validators.required]
+    });
+
+    this.userService.getAllUsers().subscribe({
+      next: (res) => {
+        if (res.statusCode === 200 && res.data) {
+          this.employees = res.data.filter((u: any) => 
+            u.role?.toUpperCase() === 'ADMIN' || u.role?.toUpperCase() === 'HR'
+          );
+        }
+      },
+      error: (err) => console.error('Failed to load reporters list:', err)
     });
   }
 

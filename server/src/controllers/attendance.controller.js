@@ -51,7 +51,7 @@ exports.getTodayAttendance = async (req, res) => {
       await lastActive.update({
         clockOutTime: moment(`${lastActive.attendanceDate} 23:59:59`).toISOString(),
         active: false,
-        isManualOut: true,
+        isManualOut: false,
       });
     }
 
