@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Subscription, interval } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
 
 interface AttendanceRecord {
   attendanceDate: string;
@@ -31,17 +32,52 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   clockStatus: 'clocked-in' | 'clocked-out' = 'clocked-out';
   workingHours = '0h 0m';
 
+  selectedUserId = '';
+  allUsers: any[] = [];
+  loggedInUserId = '';
+
   private timerSub?: Subscription;
   private clockInStartTime?: moment.Moment;
 
-  constructor(private authService: AuthService,private attendanceService: AttendanceService) {}
+  constructor(
+    public authService: AuthService,
+    private attendanceService: AttendanceService,
+    private userService: UserService
+  ) {}
 
   ngOnInit(): void {
+    const currentUserData: any = this.authService.getUserData();
+    this.loggedInUserId = currentUserData?.userId || '';
+    
+    if (!this.authService.selectedUserId()) {
+      this.authService.selectedUserId.set(this.loggedInUserId);
+    }
+    this.selectedUserId = this.authService.selectedUserId();
+
     this.startDate = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
     this.endDate = this.today;
 
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
+
+    if (this.authService.isAdminOrHR()) {
+      this.userService.getAllUsers().subscribe({
+        next: (res) => {
+          if (res.statusCode === 200) {
+            this.allUsers = res.data || [];
+          }
+        },
+        error: (err) => console.error('Error loading users list:', err)
+      });
+    }
+
+    this.loadTodayStatus();
+    this.loadAttendanceList();
+  }
+
+  onUserChange(userId: string): void {
+    this.authService.selectedUserId.set(userId);
+    this.selectedUserId = userId;
     this.loadTodayStatus();
     this.loadAttendanceList();
   }
@@ -55,9 +91,8 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   }
 
   loadAttendanceList(): void {
-    const currentUserData: any = this.authService.getUserData()
     const payload = {
-      userId: currentUserData.userId,
+      userId: this.selectedUserId,
       startDate: this.startDate,
       endDate: this.endDate,
     };
@@ -92,8 +127,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   }
 
   loadTodayStatus(): void {
-    const currentUserData: any = this.authService.getUserData()
-    this.attendanceService.getTodayAttendance(currentUserData.userId).subscribe({
+    this.attendanceService.getTodayAttendance(this.selectedUserId).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           const todayStatus = res.data;
@@ -128,12 +162,13 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   }
 
   toggleClock(): void {
+    if (this.selectedUserId !== this.loggedInUserId) return;
+
     const actionType = this.clockStatus === 'clocked-out' ? 'clock-in' : 'clock-out';
-    const currentUserData: any = this.authService.getUserData()
     const currentDate = moment().format('YYYY-MM-DD');
     const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
-    this.attendanceService.createAttendance({ userId: currentUserData.userId, actionType , currentDate: currentDate , currentTime: currentTime }).subscribe({
+    this.attendanceService.createAttendance({ userId: this.loggedInUserId, actionType , currentDate: currentDate , currentTime: currentTime }).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
             const record = res.data;

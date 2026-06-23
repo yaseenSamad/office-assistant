@@ -166,10 +166,23 @@
     </form>
   </div>
 
+  <!-- User Selector for Leave Details (Only for Admin/HR) -->
+  <div *ngIf="authService.isAdminOrHR()" class="card mb-4 p-3 d-flex flex-row align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <label class="form-label mt-2 fw-semibold" style="margin-right: 5px;">Select Employee to Check Leave History & Chart:</label>
+      <select class="form-control form-select w-auto" style="display: inline-block; width: auto; padding: 5px 10px; border-radius: 4px;" [(ngModel)]="selectedUserId" (change)="onUserChange(selectedUserId)">
+        <option *ngFor="let u of allUsers" [value]="u.userId">{{ u.firstName }} {{ u.lastName }} ({{ u.role }})</option>
+      </select>
+    </div>
+    <!-- <div class="text-muted small" *ngIf="selectedUserId !== loggedInUserId">
+      Showing leave history and balance charts for the selected employee.
+    </div> -->
+  </div>
+
   <!-- Leave Requests -->
    <ng-container *ngIf="leaveRequests?.length">
     <div class="table-responsive card">
-      <h3>My Leave History ({{currentYear}})</h3>
+      <h3>{{ selectedUserId === loggedInUserId ? 'My Leave History' : 'Leave History' }} ({{currentYear}})</h3>
       <table class="table">
         <thead>
           <tr>
@@ -209,7 +222,7 @@
 
 
   <ng-container *ngIf="leaveTypes.length">
-  <h3 style="padding-inline: var(--space-4)">My Leave Chart ({{currentYear}})</h3>
+  <h3 style="padding-inline: var(--space-4)">{{ selectedUserId === loggedInUserId ? 'My Leave Chart' : 'Leave Chart' }} ({{currentYear}})</h3>
   <div class="row" style="gap: 10px;align-items: center;justify-content: space-between;padding: var(--space-4);">
     <div class="" *ngFor="let type of leaveTypes">
       <div style="gap: 5px;" class="card d-flex flex-column align-items-center">

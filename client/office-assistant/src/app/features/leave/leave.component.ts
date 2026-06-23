@@ -5,6 +5,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import moment from 'moment';
 import { LeaveService } from '../../core/services/leave.service';
 import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
 import { LeaveBalance, LeaveRequest, LeaveStatus, LeaveType } from '../../core/models/leave.model';
 import { ToastrService } from 'ngx-toastr';
 
@@ -21,6 +22,10 @@ export class LeaveComponent implements OnInit {
   pendingLeaveForApproval: LeaveRequest[] = []
   leaveTypes: LeaveType[] = [];
   leaveBalances: LeaveBalance[] = [];
+  
+  selectedUserId = '';
+  allUsers: any[] = [];
+  loggedInUserId = '';
 
   // Form Models
   newLeave: any = {
@@ -42,16 +47,47 @@ export class LeaveComponent implements OnInit {
   declineReason: string = '';
   selectedLeaveForDecline: string | null = null;
 
-  constructor(private leaveService: LeaveService,private authService: AuthService,private toastr: ToastrService) {}
+  constructor(
+    private leaveService: LeaveService,
+    public authService: AuthService,
+    private userService: UserService,
+    private toastr: ToastrService
+  ) {}
 
   get currentYear(){
     return  moment().year();
   }
 
   ngOnInit(): void {
+    const currentUserData: any = this.authService.getUserData();
+    this.loggedInUserId = currentUserData?.userId || '';
+
+    if (!this.authService.selectedUserId()) {
+      this.authService.selectedUserId.set(this.loggedInUserId);
+    }
+    this.selectedUserId = this.authService.selectedUserId();
+
+    if (this.authService.isAdminOrHR()) {
+      this.userService.getAllUsers().subscribe({
+        next: (res) => {
+          if (res.statusCode === 200) {
+            this.allUsers = res.data || [];
+          }
+        },
+        error: (err) => console.error('Failed to load users list:', err)
+      });
+    }
+
     this.loadLeaveTypes();
     this.loadLeaveRequests();
-    this.loadLeaveRequestsWaitingForApproval()
+    this.loadLeaveRequestsWaitingForApproval();
+  }
+
+  onUserChange(userId: string): void {
+    this.authService.selectedUserId.set(userId);
+    this.selectedUserId = userId;
+    this.loadLeaveTypes();
+    this.loadLeaveRequests();
   }
 
   onLeaveTypeChange() {
@@ -65,8 +101,7 @@ export class LeaveComponent implements OnInit {
   }
 
   loadLeaveTypes() {
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.getLeaveTypes(currentUserData.userId).subscribe({
+    this.leaveService.getLeaveTypes(this.selectedUserId).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           this.leaveTypes = res.data || []
@@ -84,8 +119,7 @@ export class LeaveComponent implements OnInit {
   }
 
   loadLeaveRequests() {
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.getMyLeaves(currentUserData.userId).subscribe({
+    this.leaveService.getMyLeaves(this.selectedUserId).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           this.leaveRequests = res.data || []
@@ -102,9 +136,8 @@ export class LeaveComponent implements OnInit {
     });
   }
 
-    loadLeaveRequestsWaitingForApproval() {
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.getPendingApprovals(currentUserData.userId).subscribe({
+  loadLeaveRequestsWaitingForApproval() {
+    this.leaveService.getPendingApprovals(this.loggedInUserId).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           this.pendingLeaveForApproval = res.data || []
@@ -122,8 +155,7 @@ export class LeaveComponent implements OnInit {
   }
 
   applyLeave() {
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.applyLeave(currentUserData.userId,this.newLeave).subscribe({
+    this.leaveService.applyLeave(this.selectedUserId,this.newLeave).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           this.toastr.success('Leave applied succesfully');
@@ -143,8 +175,7 @@ export class LeaveComponent implements OnInit {
   }
 
   approveLeave(leaveId: string) {
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.updateLeaveStatus(currentUserData.userId,leaveId, { status: LeaveStatus.APPROVED }).subscribe({
+    this.leaveService.updateLeaveStatus(this.loggedInUserId,leaveId, { status: LeaveStatus.APPROVED }).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           this.toastr.success('Leave approved succesfully');
@@ -169,8 +200,7 @@ export class LeaveComponent implements OnInit {
   }
 
   rejectLeave(leaveId: string, reason: string) {
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.updateLeaveStatus(currentUserData.userId,leaveId, { status: LeaveStatus.REJECTED, declineReason: reason }).subscribe({
+    this.leaveService.updateLeaveStatus(this.loggedInUserId,leaveId, { status: LeaveStatus.REJECTED, declineReason: reason }).subscribe({
       next: (res) => {
       if(res.statusCode == 200){
         this.toastr.success('Leave rejected succesfully');
@@ -194,8 +224,7 @@ export class LeaveComponent implements OnInit {
       return 
     }
 
-    const currentUserData: any = this.authService.getUserData()
-    this.leaveService.createLeaveType(currentUserData.userId,this.newLeaveType).subscribe({
+    this.leaveService.createLeaveType(this.loggedInUserId,this.newLeaveType).subscribe({
       next: (res) => {
         if(res.statusCode == 200){
           this.toastr.success('Leave type added succesfully');

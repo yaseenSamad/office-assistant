@@ -16,6 +16,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
   isAuthenticated = signal(false);
+  selectedUserId = signal<string>('');
 
   constructor(
     private http: HttpClient,
@@ -68,6 +69,7 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
     this.isAuthenticated.set(false);
+    this.selectedUserId.set('');
     this.router.navigate(['/auth/login']);
   }
 
