@@ -23,7 +23,12 @@ const payrollRoutes = require("./routes/payroll.routes");
 // const postRoutes = require("./routes/post.routes");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:4203",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
 app.use(express.json());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -52,7 +57,7 @@ app.use("/api/payroll", payrollRoutes);
 // const leaveRoutes = require("./routes/leave.routes");
 // const postRoutes = require("./routes/post.routes");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5004;
 
 sequelize.sync({  }).then(() => {
   console.log("✅ Database synced");

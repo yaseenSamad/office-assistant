@@ -11,7 +11,7 @@ import { throwError } from 'rxjs';
 
 export const apiInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
   const toastr = inject(ToastrService);
-  const baseUrl = 'http://localhost:5000';
+  const baseUrl = 'http://localhost:5004';
 
   let apiReq = req.clone({
     url: `${baseUrl}${req.url}`,

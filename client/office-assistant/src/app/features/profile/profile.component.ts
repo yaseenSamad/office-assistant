@@ -685,7 +685,7 @@ export class ProfileComponent implements OnInit {
   getProfilePictureUrl(): string {
     const user = this.user();
     if (user?.profilePicture) {
-      return `http://localhost:5000${user.profilePicture}`;
+      return `http://localhost:5004${user.profilePicture}`;
     }
     return 'assets/default-avatar.png';
   }
