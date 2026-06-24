@@ -58,8 +58,7 @@ export class HolidayListComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    // return this.authService.isAdmin();
-    return true
+    return this.authService.isAdmin();
   }
 
   openCreateModal(): void {
