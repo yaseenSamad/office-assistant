@@ -104,7 +104,7 @@
                   My Payslips
                 </a>
               </li>
-              <li *ngIf="canRegister()">
+              <li *ngIf="isAdmin()">
                 <a routerLink="/payroll/run" routerLinkActive="active">
                   <span class="material-icons">payments</span>
                   Run Payroll

@@ -4,9 +4,9 @@ const { Op } = require("sequelize");
 const moment = require("moment");
 
 exports.runPayroll = async (req, res) => {
-    // Authorization: HR or Admin only
-    if (req.user.role !== 'admin' && req.user.role !== 'hr') {
-        return errorResponse(res, "Access denied. You must be an Admin or HR.", 403);
+    // Authorization: Admin only
+    if (req.user.role !== 'admin') {
+        return errorResponse(res, "Access denied. You must be an Admin.", 403);
     }
 
     const { payPeriodStart, payPeriodEnd } = req.body;
