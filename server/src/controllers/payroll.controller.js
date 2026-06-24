@@ -14,6 +14,10 @@ exports.runPayroll = async (req, res) => {
         return errorResponse(res, "payPeriodStart and payPeriodEnd are required.", 400);
     }
 
+    const start = moment(payPeriodStart);
+    const end = moment(payPeriodEnd).add(1, "days");
+    const monthsCount = end.diff(start, "months", true);
+
     const transaction = await sequelize.transaction();
 
     try {
@@ -31,7 +35,7 @@ exports.runPayroll = async (req, res) => {
             let grossSalary = 0;
 
             if (salary.payType === 'monthly') {
-                grossSalary = parseFloat(salary.amount);
+                grossSalary = parseFloat(salary.amount) * monthsCount;
             } else if (salary.payType === 'hourly') {
                 const attendances = await Attendance.findAll({
                     where: {

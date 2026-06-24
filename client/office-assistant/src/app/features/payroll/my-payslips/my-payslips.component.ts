@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -18,6 +18,17 @@ export class MyPayslipsComponent implements OnInit {
 
   payslips = signal<Payslip[]>([]);
   loading = signal(true);
+
+  latestPayslip = computed(() => {
+    const list = this.payslips();
+    return list.length > 0 ? list[0] : null;
+  });
+
+  totalPayslipsCount = computed(() => this.payslips().length);
+
+  totalPaidCount = computed(() => {
+    return this.payslips().filter(p => p.status === 'paid').length;
+  });
 
   ngOnInit(): void {
     this.loadPayslips();

@@ -1,5 +1,10 @@
 @media print {
-  .print-button {
-    display: none;
+  .print-button, .back-button {
+    display: none !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
 }

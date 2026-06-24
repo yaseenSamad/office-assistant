@@ -1,33 +1,55 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left-info">
       <h2>Run Payroll</h2>
-      <p>Select a pay period to calculate and generate payslips for all eligible employees.</p>
+      <p class="text-muted">Select a pay period to calculate and generate payslips for all eligible employees.</p>
     </div>
+  </div>
+
+  <div class="card payroll-card">
     <div class="card-body">
       <form [formGroup]="payrollForm" (ngSubmit)="runPayroll()">
         <div class="row">
-          <div class="col-md-5">
+          <!-- Start Date -->
+          <div class="col-md-6">
             <div class="form-group">
-              <label for="payPeriodStart">Pay Period Start</label>
-              <input type="date" id="payPeriodStart" class="form-control" formControlName="payPeriodStart">
+              <label for="payPeriodStart" class="form-label">Pay Period Start</label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">date_range</span>
+                <input type="date" id="payPeriodStart" class="form-control" formControlName="payPeriodStart">
+              </div>
             </div>
           </div>
-          <div class="col-md-5">
+          
+          <!-- End Date -->
+          <div class="col-md-6">
             <div class="form-group">
-              <label for="payPeriodEnd">Pay Period End</label>
-              <input type="date" id="payPeriodEnd" class="form-control" formControlName="payPeriodEnd">
+              <label for="payPeriodEnd" class="form-label">Pay Period End</label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">date_range</span>
+                <input type="date" id="payPeriodEnd" class="form-control" formControlName="payPeriodEnd">
+              </div>
             </div>
-          </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100" [disabled]="payrollForm.invalid || loading">
-              <span *ngIf="!loading">Run Payroll</span>
-              <span *ngIf="loading">Running...</span>
-            </button>
           </div>
         </div>
-        <div *ngIf="payrollForm.invalid && payrollForm.touched" class="text-danger small mt-2">
-          Please select both a start and end date for the pay period.
+
+        <!-- Validations -->
+        <div *ngIf="payrollForm.invalid && payrollForm.touched" class="alert alert-warning mt-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-icons" style="font-size: 20px;">info</span>
+            <span>Please select both a valid start and end date for the pay period.</span>
+          </div>
+        </div>
+
+        <!-- Submit Button Footer -->
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-primary run-button" [disabled]="payrollForm.invalid || loading">
+            <span class="material-icons" *ngIf="!loading">play_circle</span>
+            <span class="spinner-border" *ngIf="loading"></span>
+            <span *ngIf="!loading">Run Payroll Process</span>
+            <span *ngIf="loading">Processing Payroll...</span>
+          </button>
         </div>
       </form>
     </div>

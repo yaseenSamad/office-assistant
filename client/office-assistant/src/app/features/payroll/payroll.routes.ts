@@ -16,8 +16,7 @@ export const PAYROLL_ROUTES: Routes = [
   },
   {
     path: 'payslips/:id',
-    component: PayslipDetailComponent,
-    canActivate: [hrGuard]
+    component: PayslipDetailComponent
   },
   {
     path: '',
