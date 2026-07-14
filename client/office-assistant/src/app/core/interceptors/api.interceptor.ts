@@ -9,9 +9,11 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
+
 export const apiInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
   const toastr = inject(ToastrService);
-  const baseUrl = 'http://localhost:5004';
+  const baseUrl = environment.apiUrl;
 
   let apiReq = req.clone({
     url: `${baseUrl}${req.url}`,

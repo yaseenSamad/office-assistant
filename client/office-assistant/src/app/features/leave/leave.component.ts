@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import moment from 'moment';
@@ -18,6 +19,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./leave.component.scss'],
 })
 export class LeaveComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   leaveRequests: LeaveRequest[] = [];
   pendingLeaveForApproval: LeaveRequest[] = []
   leaveTypes: LeaveType[] = [];

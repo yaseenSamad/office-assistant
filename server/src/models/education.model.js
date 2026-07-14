@@ -33,6 +33,8 @@ module.exports = (sequelize, DataTypes) => {
     description: {
       type: DataTypes.TEXT,
     },
+  }, {
+    tableName: "education",
   });
 
   return Education;

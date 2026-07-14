@@ -39,6 +39,8 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false,
     },
+  }, {
+    tableName: "workexperiences",
   });
 
   return WorkExperience;

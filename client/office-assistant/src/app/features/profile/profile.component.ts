@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router'; // Import Router
 import { ToastrService } from 'ngx-toastr';
@@ -688,7 +689,7 @@ export class ProfileComponent implements OnInit {
   getProfilePictureUrl(): string {
     const user = this.user();
     if (user?.profilePicture) {
-      return `http://localhost:5004${user.profilePicture}`;
+      return `${environment.apiUrl}${user.profilePicture}`;
     }
     return 'assets/default-avatar.png';
   }
