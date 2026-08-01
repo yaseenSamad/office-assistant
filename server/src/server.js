@@ -23,13 +23,36 @@ const payrollRoutes = require("./routes/payroll.routes");
 // const postRoutes = require("./routes/post.routes");
 
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:4203",
+  "https://yaseenmohamed.website",
+  "https://api.yaseenmohamed.website"
+];
+
 app.use(cors({
-  origin: "http://localhost:4203",
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
+
 app.use(express.json());
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "UP",
+    message: "Server is healthy",
+    timestamp: new Date()
+  });
+});
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
